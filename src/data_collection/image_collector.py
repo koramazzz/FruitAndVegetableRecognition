@@ -1,5 +1,5 @@
 """
-Görüntü toplama ve ön işleme modülü
+Image collection and preprocessing module
 """
 
 import cv2
@@ -10,21 +10,21 @@ from pathlib import Path
 
 
 class ImageCollector:
-    """Görüntü toplama ve ön işleme sınıfı"""
+    """Image collection and preprocessing class"""
     
     def __init__(self, base_dir: str = "data/raw/images"):
         """
         Args:
-            base_dir: Görüntülerin kaydedileceği temel dizin
+            base_dir: Base directory where images will be saved
         """
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(parents=True, exist_ok=True)
         
-        # Kategoriler
-        self.categories = ['muz', 'domates', 'salatalik', 'mandalina', 'patates']
+        # Categories
+        self.categories = ['banana', 'tomato', 'cucumber', 'mandarin', 'potato']
         
     def create_category_dirs(self):
-        """Her kategori için dizin oluştur"""
+        """Create directories for each category"""
         for category in self.categories:
             category_dir = self.base_dir / category
             category_dir.mkdir(parents=True, exist_ok=True)
@@ -34,30 +34,30 @@ class ImageCollector:
                       min_samples_per_category: int = 50,
                       target_samples_per_category: int = 600):
         """
-        Görüntüleri topla ve organize et
+        Collect and organize images
         
         Args:
-            source_dir: Kaynak görüntü dizini (None ise manuel toplama beklenir)
-            min_samples_per_category: Her kategoriden minimum örnek sayısı
-            target_samples_per_category: Her kategoriden hedef örnek sayısı
+            source_dir: Source image directory (None if manual collection is expected)
+            min_samples_per_category: Minimum number of samples per category
+            target_samples_per_category: Target number of samples per category
         """
         self.create_category_dirs()
         
         if source_dir:
             self._copy_from_source(source_dir)
         else:
-            print(f"Lütfen her kategoriden en az {min_samples_per_category} görüntüyü "
-                  f"şu dizinlere yerleştirin:")
+            print(f"Please place at least {min_samples_per_category} images from each category "
+                  f"in the following directories:")
             for category in self.categories:
                 print(f"  - {self.base_dir / category}")
     
     def _copy_from_source(self, source_dir: str):
-        """Kaynak dizinden görüntüleri kopyala"""
+        """Copy images from source directory"""
         source_path = Path(source_dir)
         if not source_path.exists():
-            raise ValueError(f"Kaynak dizin bulunamadı: {source_dir}")
+            raise ValueError(f"Source directory not found: {source_dir}")
         
-        # Kategori bazında görüntüleri kopyala
+        # Copy images by category
         for category in self.categories:
             source_category_dir = source_path / category
             if source_category_dir.exists():
@@ -71,28 +71,28 @@ class ImageCollector:
                         target_size: Tuple[int, int] = (224, 224),
                         normalize: bool = True) -> np.ndarray:
         """
-        Görüntüyü ön işle
+        Preprocess image
         
         Args:
-            image_path: Görüntü dosya yolu
-            target_size: Hedef boyut (genişlik, yükseklik)
-            normalize: Normalizasyon uygula mı
+            image_path: Image file path
+            target_size: Target size (width, height)
+            normalize: Apply normalization
             
         Returns:
-            İşlenmiş görüntü array'i
+            Preprocessed image array
         """
-        # Görüntüyü oku
+        # Read image
         img = cv2.imread(image_path)
         if img is None:
-            raise ValueError(f"Görüntü okunamadı: {image_path}")
+            raise ValueError(f"Image could not be read: {image_path}")
         
-        # BGR'den RGB'ye çevir
+        # Convert BGR to RGB
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         
-        # Boyutlandır
+        # Resize
         img = cv2.resize(img, target_size)
         
-        # Normalizasyon
+        # Normalization
         if normalize:
             img = img.astype(np.float32) / 255.0
         
@@ -102,29 +102,29 @@ class ImageCollector:
                      image: np.ndarray,
                      augmentations: List[str] = ['flip', 'rotate', 'brightness']) -> List[np.ndarray]:
         """
-        Görüntü augmentasyonu uygula
+        Apply image augmentation
         
         Args:
-            image: Görüntü array'i
-            augmentations: Uygulanacak augmentasyonlar
+            image: Image array
+            augmentations: Augmentations to apply
             
         Returns:
-            Augment edilmiş görüntü listesi
+            List of augmented images
         """
         augmented_images = []
         
         if 'flip' in augmentations:
-            # Yatay çevir
+            # Horizontal flip
             flipped = np.fliplr(image)
             augmented_images.append(flipped)
         
         if 'rotate' in augmentations:
-            # 90 derece döndür
+            # Rotate 90 degrees
             rotated = np.rot90(image)
             augmented_images.append(rotated)
         
         if 'brightness' in augmentations:
-            # Parlaklık ayarla
+            # Adjust brightness
             bright = np.clip(image * 1.2, 0, 1)
             dark = np.clip(image * 0.8, 0, 1)
             augmented_images.extend([bright, dark])
@@ -133,13 +133,13 @@ class ImageCollector:
     
     def get_image_paths(self, category: str) -> List[str]:
         """
-        Belirli bir kategoriye ait görüntü yollarını getir
+        Get image paths for a specific category
         
         Args:
-            category: Kategori adı
+            category: Category name
             
         Returns:
-            Görüntü dosya yolları listesi
+            List of image file paths
         """
         category_dir = self.base_dir / category
         if not category_dir.exists():
@@ -154,10 +154,10 @@ class ImageCollector:
     
     def get_all_image_paths(self) -> dict:
         """
-        Tüm kategorilere ait görüntü yollarını getir
+        Get image paths for all categories
         
         Returns:
-            Kategori -> görüntü yolları dictionary'si
+            Category -> image paths dictionary
         """
         all_paths = {}
         for category in self.categories:

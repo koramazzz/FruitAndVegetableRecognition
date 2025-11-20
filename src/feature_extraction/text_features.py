@@ -1,6 +1,6 @@
 """
-Metin özellik çıkarımı modülü
-Word embeddings ve sentence embeddings kullanarak özellik çıkarımı
+Text feature extraction module
+Feature extraction using word embeddings and sentence embeddings
 """
 
 import numpy as np
@@ -14,18 +14,18 @@ try:
     GENSIM_AVAILABLE = True
 except ImportError:
     GENSIM_AVAILABLE = False
-    warnings.warn("Gensim bulunamadı. Word2Vec kullanılamayacak.")
+    warnings.warn("Gensim not found. Word2Vec will not be available.")
 
 try:
     import spacy
     SPACY_AVAILABLE = True
 except ImportError:
     SPACY_AVAILABLE = False
-    warnings.warn("SpaCy bulunamadı. SpaCy embeddings kullanılamayacak.")
+    warnings.warn("SpaCy not found. SpaCy embeddings will not be available.")
 
 
 class TextFeatureExtractor:
-    """Metin özellik çıkarımı sınıfı"""
+    """Text feature extraction class"""
     
     def __init__(self, 
                  method: str = 'word2vec',
@@ -33,9 +33,9 @@ class TextFeatureExtractor:
                  embedding_dim: int = 100):
         """
         Args:
-            method: Özellik çıkarım yöntemi ('word2vec', 'doc2vec', 'spacy', 'tfidf')
-            model_path: Önceden eğitilmiş model yolu (varsa)
-            embedding_dim: Embedding boyutu
+            method: Feature extraction method ('word2vec', 'doc2vec', 'spacy', 'tfidf')
+            model_path: Path to pre-trained model (if any)
+            embedding_dim: Embedding dimension
         """
         self.method = method
         self.embedding_dim = embedding_dim
@@ -44,14 +44,14 @@ class TextFeatureExtractor:
         
         if method == 'spacy' and SPACY_AVAILABLE:
             try:
-                # Türkçe model yüklemeyi dene
+                # Try loading Turkish model
                 self.nlp = spacy.load("tr_core_news_sm")
             except OSError:
                 try:
-                    # İngilizce model yükle
+                    # Load English model
                     self.nlp = spacy.load("en_core_web_sm")
                 except OSError:
-                    warnings.warn("SpaCy modeli bulunamadı. Basit tokenization kullanılacak.")
+                    warnings.warn("SpaCy model not found. Simple tokenization will be used.")
                     self.nlp = None
         
         if model_path and method in ['word2vec', 'doc2vec']:
@@ -59,13 +59,13 @@ class TextFeatureExtractor:
     
     def tokenize(self, text: str) -> List[str]:
         """
-        Metni tokenize et
+        Tokenize text
         
         Args:
-            text: Metin string'i
+            text: Text string
             
         Returns:
-            Token listesi
+            List of tokens
         """
         if self.nlp:
             doc = self.nlp(text.lower())
@@ -76,14 +76,14 @@ class TextFeatureExtractor:
     
     def train_word2vec(self, texts: List[str], **kwargs):
         """
-        Word2Vec modelini eğit
+        Train Word2Vec model
         
         Args:
-            texts: Eğitim metinleri listesi
-            **kwargs: Word2Vec parametreleri
+            texts: List of training texts
+            **kwargs: Word2Vec parameters
         """
         if not GENSIM_AVAILABLE:
-            raise ImportError("Gensim kurulu değil. Word2Vec kullanılamaz.")
+            raise ImportError("Gensim is not installed. Word2Vec cannot be used.")
         
         tokenized_texts = [self.tokenize(text) for text in texts]
         
@@ -98,14 +98,14 @@ class TextFeatureExtractor:
     
     def train_doc2vec(self, texts: List[str], **kwargs):
         """
-        Doc2Vec modelini eğit
+        Train Doc2Vec model
         
         Args:
-            texts: Eğitim metinleri listesi
-            **kwargs: Doc2Vec parametreleri
+            texts: List of training texts
+            **kwargs: Doc2Vec parameters
         """
         if not GENSIM_AVAILABLE:
-            raise ImportError("Gensim kurulu değil. Doc2Vec kullanılamaz.")
+            raise ImportError("Gensim is not installed. Doc2Vec cannot be used.")
         
         tokenized_texts = [self.tokenize(text) for text in texts]
         tagged_docs = [TaggedDocument(words=text, tags=[i]) for i, text in enumerate(tokenized_texts)]
@@ -121,22 +121,22 @@ class TextFeatureExtractor:
     
     def extract_word2vec_features(self, text: str) -> np.ndarray:
         """
-        Word2Vec kullanarak özellik çıkar
+        Extract features using Word2Vec
         
         Args:
-            text: Metin string'i
+            text: Text string
             
         Returns:
-            Özellik vektörü
+            Feature vector
         """
         if self.model is None:
-            raise ValueError("Word2Vec modeli eğitilmemiş veya yüklenmemiş")
+            raise ValueError("Word2Vec model is not trained or loaded")
         
         tokens = self.tokenize(text)
         if not tokens:
             return np.zeros(self.embedding_dim)
         
-        # Tüm token'ların ortalamasını al
+        # Average all tokens
         word_vectors = []
         for token in tokens:
             if token in self.model.wv:
@@ -149,16 +149,16 @@ class TextFeatureExtractor:
     
     def extract_doc2vec_features(self, text: str) -> np.ndarray:
         """
-        Doc2Vec kullanarak özellik çıkar
+        Extract features using Doc2Vec
         
         Args:
-            text: Metin string'i
+            text: Text string
             
         Returns:
-            Özellik vektörü
+            Feature vector
         """
         if self.model is None:
-            raise ValueError("Doc2Vec modeli eğitilmemiş veya yüklenmemiş")
+            raise ValueError("Doc2Vec model is not trained or loaded")
         
         tokens = self.tokenize(text)
         if not tokens:
@@ -168,37 +168,37 @@ class TextFeatureExtractor:
     
     def extract_spacy_features(self, text: str) -> np.ndarray:
         """
-        SpaCy kullanarak özellik çıkar
+        Extract features using SpaCy
         
         Args:
-            text: Metin string'i
+            text: Text string
             
         Returns:
-            Özellik vektörü
+            Feature vector
         """
         if self.nlp is None:
-            raise ValueError("SpaCy modeli yüklenmemiş")
+            raise ValueError("SpaCy model is not loaded")
         
         doc = self.nlp(text)
         if doc.has_vector:
             return doc.vector
         else:
-            # Token vektörlerinin ortalamasını al
+            # Average token vectors
             token_vectors = [token.vector for token in doc if token.has_vector]
             if token_vectors:
                 return np.mean(token_vectors, axis=0)
             else:
-                return np.zeros(300)  # SpaCy varsayılan boyutu
+                return np.zeros(300)  # SpaCy default size
     
     def extract_features(self, text: str) -> np.ndarray:
         """
-        Metinden özellik çıkar
+        Extract features from text
         
         Args:
-            text: Metin string'i
+            text: Text string
             
         Returns:
-            Özellik vektörü
+            Feature vector
         """
         if self.method == 'word2vec':
             return self.extract_word2vec_features(text)
@@ -207,31 +207,31 @@ class TextFeatureExtractor:
         elif self.method == 'spacy':
             return self.extract_spacy_features(text)
         else:
-            raise ValueError(f"Bilinmeyen yöntem: {self.method}")
+            raise ValueError(f"Unknown method: {self.method}")
     
     def load_model(self, model_path: str):
         """
-        Önceden eğitilmiş modeli yükle
+        Load pre-trained model
         
         Args:
-            model_path: Model dosya yolu
+            model_path: Model file path
         """
         if self.method == 'word2vec':
             self.model = Word2Vec.load(model_path)
         elif self.method == 'doc2vec':
             self.model = Doc2Vec.load(model_path)
         else:
-            raise ValueError(f"Model yükleme {self.method} için desteklenmiyor")
+            raise ValueError(f"Model loading is not supported for {self.method}")
     
     def save_model(self, model_path: str):
         """
-        Modeli kaydet
+        Save model
         
         Args:
-            model_path: Kayıt yolu
+            model_path: Save path
         """
         if self.model is None:
-            raise ValueError("Kaydedilecek model yok")
+            raise ValueError("No model to save")
         
         self.model.save(model_path)
 
@@ -240,20 +240,20 @@ def extract_text_features(texts: List[str],
                          extractor: TextFeatureExtractor = None,
                          train_model: bool = True) -> np.ndarray:
     """
-    Birden fazla metinden özellik çıkar
+    Extract features from multiple texts
     
     Args:
-        texts: Metin listesi
-        extractor: TextFeatureExtractor instance (None ise varsayılan oluşturulur)
-        train_model: Modeli eğit (True ise)
+        texts: List of texts
+        extractor: TextFeatureExtractor instance (default created if None)
+        train_model: Train model (if True)
         
     Returns:
-        Özellik matrisi (n_samples, n_features)
+        Feature matrix (n_samples, n_features)
     """
     if extractor is None:
         extractor = TextFeatureExtractor(method='word2vec', embedding_dim=100)
     
-    # Modeli eğit (gerekirse)
+    # Train model (if needed)
     if train_model and extractor.model is None:
         if extractor.method == 'word2vec':
             extractor.train_word2vec(texts)
@@ -263,7 +263,7 @@ def extract_text_features(texts: List[str],
     features_list = []
     for text in texts:
         if not text or pd.isna(text):
-            # Boş metin için sıfır vektör
+            # Zero vector for empty text
             features = np.zeros(extractor.embedding_dim)
         else:
             features = extractor.extract_features(str(text))

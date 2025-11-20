@@ -1,123 +1,122 @@
-# Meyve ve Sebze Tanıma Projesi - CMPE 462 Assignment 1
+# Fruit and Vegetable Recognition Project - CMPE 462 Assignment 1
 
-## Rapor Şablonu
+## Report Template
 
-Bu dosya, ödev raporu için bir şablondur. Lütfen aşağıdaki bölümleri doldurun.
-
----
-
-## 1. Veri Seti Açıklaması
-
-### 1.1 Kategoriler
-- Muz
-- Domates
-- Salatalık
-- Mandalina
-- Patates
-
-### 1.2 Her Kategoriden Örnek
-[Buraya her kategoriden bir örnek görüntü ve özelliklerini ekleyin]
-
-### 1.3 Veri Seti İstatistikleri
-- Toplam örnek sayısı: 3000
-- Kategori başına örnek sayısı: 600
-- Eğitim seti: 2500 örnek
-- Test seti: 500 örnek
-- Validasyon seti: 500 örnek
+This file is a template for the assignment report. Please fill in the following sections.
 
 ---
 
-## 2. Veri Toplama ve Ön İşleme Prosedürü
+## 1. Dataset Description
 
-### 2.1 Veri Toplama
-[Veri toplama prosedürünüzü açıklayın]
+### 1.1 Categories
+- Banana
+- Tomato
+- Cucumber
+- Mandarin
+- Potato
 
-### 2.2 Veri Ön İşleme
-[Ön işleme adımlarınızı açıklayın]
+### 1.2 Example from Each Category
+[Add one example image and features from each category here]
 
----
-
-## 3. Özellik Çıkarım Prosedürü
-
-### 3.1 Görüntü Özellikleri
-[Görüntü özellik çıkarım yöntemlerinizi açıklayın: HOG, LBP, renk histogramları, vb.]
-
-### 3.2 Metin Özellikleri
-[Metin özellik çıkarım yöntemlerinizi açıklayın: Word2Vec, Doc2Vec, vb.]
-
-### 3.3 Kategorik ve Numerik Özellikler
-[Kategorik ve numerik özelliklerin nasıl işlendiğini açıklayın]
-
-### 3.4 Özellik Birleştirme Stratejisi
-[Farklı modalitelerden gelen özellikleri nasıl birleştirdiğinizi açıklayın]
+### 1.3 Dataset Statistics
+- Total number of samples: 3000
+- Number of samples per category: 600
+- Training set: 2500 samples
+- Test set: 500 samples
+- Validation set: 500 samples
 
 ---
 
-## 4. İntra-Sınıf ve Inter-Sınıf Benzerlik Analizi
+## 2. Data Collection and Preprocessing Procedure
 
-### 4.1 Benzerlik Metrikleri
-[Kullandığınız benzerlik metriklerini açıklayın]
+### 2.1 Data Collection
+[Describe your data collection procedure]
 
-### 4.2 İntra-Sınıf Benzerlik Sonuçları
-[Her sınıf için sınıf içi benzerlik sonuçlarını gösterin]
-
-### 4.3 Inter-Sınıf Benzerlik Sonuçları
-[Sınıflar arası benzerlik matrisini gösterin]
-
-### 4.4 Veri Seti Zorluk Analizi
-[Veri setinizin zorluk seviyesini yorumlayın]
+### 2.2 Data Preprocessing
+[Describe your preprocessing steps]
 
 ---
 
-## 5. Outlier Tespiti
+## 3. Feature Extraction Procedure
 
-### 5.1 Kullanılan Yöntemler
-[Outlier tespiti için kullandığınız yöntemleri açıklayın: IQR, Z-score, Isolation Forest, vb.]
+### 3.1 Image Features
+[Describe your image feature extraction methods: HOG, LBP, color histograms, etc.]
 
-### 5.2 Outlier Tespiti Sonuçları
-[Tespit edilen outlier'ların sayısı ve oranını gösterin]
+### 3.2 Text Features
+[Describe your text feature extraction methods: Word2Vec, Doc2Vec, etc.]
 
-### 5.3 Outlier'ların Etkisi
-[Outlier'ların model performansına etkisini tartışın]
+### 3.3 Categorical and Numerical Features
+[Describe how categorical and numerical features are processed]
+
+### 3.4 Feature Fusion Strategy
+[Describe how you fuse features from different modalities]
 
 ---
 
-## 6. Model Eğitimi ve Performans
+## 4. Intra-Class and Inter-Class Similarity Analysis
 
-### 6.1 Lojistik Regresyon Implementasyonu
-[Kendi implementasyonunuzu açıklayın]
+### 4.1 Similarity Metrics
+[Describe the similarity metrics you used]
 
-### 6.2 Eğitim ve Validasyon Loss Grafikleri
-[Loss geçmişi grafiklerini ekleyin]
+### 4.2 Intra-Class Similarity Results
+[Show intra-class similarity results for each class]
 
-### 6.3 Farklı Özellik Setleri ile Performans Karşılaştırması
-[Farklı özellik setleri için performans metriklerini tablo halinde gösterin]
+### 4.3 Inter-Class Similarity Results
+[Show inter-class similarity matrix]
 
-| Özellik Seti | Accuracy | Precision | Recall | F1-Score | AUC |
+### 4.4 Dataset Difficulty Analysis
+[Comment on the difficulty level of your dataset]
+
+---
+
+## 5. Outlier Detection
+
+### 5.1 Methods Used
+[Describe the methods you used for outlier detection: IQR, Z-score, Isolation Forest, etc.]
+
+### 5.2 Outlier Detection Results
+[Show the number and ratio of detected outliers]
+
+### 5.3 Impact of Outliers
+[Discuss the impact of outliers on model performance]
+
+---
+
+## 6. Model Training and Performance
+
+### 6.1 Logistic Regression Implementation
+[Describe your own implementation]
+
+### 6.2 Training and Validation Loss Graphs
+[Add loss history graphs]
+
+### 6.3 Performance Comparison with Different Feature Sets
+[Show performance metrics in a table for different feature sets]
+
+| Feature Set | Accuracy | Precision | Recall | F1-Score | AUC |
 |--------------|----------|-----------|--------|----------|-----|
-| Sadece Görüntü | | | | | |
-| Sadece Kategorik/Numerik | | | | | |
-| Sadece Metin | | | | | |
-| Birleştirilmiş | | | | | |
+| Image Only | | | | | |
+| Categorical/Numerical Only | | | | | |
+| Text Only | | | | | |
+| Fused | | | | | |
 
-### 6.4 Sklearn ile Karşılaştırma
-[Kendi implementasyonunuz ile sklearn'in performans ve runtime karşılaştırması]
-
----
-
-## 7. Sonuçlar ve Tartışma
-
-[Sonuçları özetleyin ve tartışın]
+### 6.4 Comparison with Sklearn
+[Performance and runtime comparison between your implementation and sklearn]
 
 ---
 
-## 8. Takım Üyesi Katkı Beyanı
+## 7. Results and Discussion
 
-[Her takım üyesinin katkılarını belirtin]
+[Summarize and discuss the results]
 
 ---
 
-## Referanslar
+## 8. Team Member Contribution Statement
 
-[Kullandığınız kaynakları listeleyin]
+[Specify each team member's contributions]
 
+---
+
+## References
+
+[List the sources you used]

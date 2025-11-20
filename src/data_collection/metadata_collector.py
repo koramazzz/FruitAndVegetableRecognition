@@ -1,5 +1,5 @@
 """
-Kategorik ve numerik veri toplama modülü
+Categorical and numerical data collection module
 """
 
 import pandas as pd
@@ -10,65 +10,65 @@ import random
 
 
 class MetadataCollector:
-    """Metadata (kategorik ve numerik özellikler) toplama sınıfı"""
+    """Metadata (categorical and numerical features) collection class"""
     
     def __init__(self, base_dir: str = "data/raw"):
         """
         Args:
-            base_dir: Metadata'nın kaydedileceği temel dizin
+            base_dir: Base directory where metadata will be saved
         """
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(parents=True, exist_ok=True)
         
-        # Kategoriler
-        self.categories = ['muz', 'domates', 'salatalik', 'mandalina', 'patates']
+        # Categories
+        self.categories = ['banana', 'tomato', 'cucumber', 'mandarin', 'potato']
         
-        # Kategorik özellikler için olası değerler
+        # Possible values for categorical features
         self.color_options = {
-            'muz': ['sari', 'yesil', 'kahverengi'],
-            'domates': ['kirmizi', 'yesil', 'turuncu'],
-            'salatalik': ['yesil', 'beyaz', 'sari'],
-            'mandalina': ['turuncu', 'yesil', 'sari'],
-            'patates': ['kahverengi', 'sari', 'beyaz']
+            'banana': ['yellow', 'green', 'brown'],
+            'tomato': ['red', 'green', 'orange'],
+            'cucumber': ['green', 'white', 'yellow'],
+            'mandarin': ['orange', 'green', 'yellow'],
+            'potato': ['brown', 'yellow', 'white']
         }
         
         self.season_options = {
-            'muz': ['yaz', 'kis', 'sonbahar', 'ilkbahar'],
-            'domates': ['yaz', 'sonbahar'],
-            'salatalik': ['yaz', 'ilkbahar', 'sonbahar'],
-            'mandalina': ['kis', 'sonbahar'],
-            'patates': ['yaz', 'sonbahar', 'ilkbahar']
+            'banana': ['summer', 'winter', 'autumn', 'spring'],
+            'tomato': ['summer', 'autumn'],
+            'cucumber': ['summer', 'spring', 'autumn'],
+            'mandarin': ['winter', 'autumn'],
+            'potato': ['summer', 'autumn', 'spring']
         }
         
         self.origin_options = {
-            'muz': ['tropik', 'ithal'],
-            'domates': ['yerli', 'ithal'],
-            'salatalik': ['yerli', 'ithal'],
-            'mandalina': ['yerli', 'ithal'],
-            'patates': ['yerli', 'ithal']
+            'banana': ['tropical', 'imported'],
+            'tomato': ['local', 'imported'],
+            'cucumber': ['local', 'imported'],
+            'mandarin': ['local', 'imported'],
+            'potato': ['local', 'imported']
         }
         
-        # Numerik özellikler için aralıklar (gram cinsinden)
+        # Ranges for numerical features (in grams)
         self.weight_ranges = {
-            'muz': (80, 200),
-            'domates': (50, 300),
-            'salatalik': (100, 400),
-            'mandalina': (50, 150),
-            'patates': (100, 500)
+            'banana': (80, 200),
+            'tomato': (50, 300),
+            'cucumber': (100, 400),
+            'mandarin': (50, 150),
+            'potato': (100, 500)
         }
     
     def generate_metadata(self, 
                          n_samples_per_category: int = 600,
                          seed: Optional[int] = None) -> pd.DataFrame:
         """
-        Metadata oluştur
+        Generate metadata
         
         Args:
-            n_samples_per_category: Kategori başına örnek sayısı
-            seed: Rastgele sayı üreteci seed'i
+            n_samples_per_category: Number of samples per category
+            seed: Random seed
             
         Returns:
-            Metadata DataFrame'i
+            Metadata DataFrame
         """
         if seed is not None:
             np.random.seed(seed)
@@ -78,17 +78,17 @@ class MetadataCollector:
         
         for category in self.categories:
             for i in range(n_samples_per_category):
-                # Kategorik özellikler
+                # Categorical features
                 color = random.choice(self.color_options[category])
                 season = random.choice(self.season_options[category])
                 origin = random.choice(self.origin_options[category])
                 
-                # Numerik özellikler
+                # Numerical features
                 weight_min, weight_max = self.weight_ranges[category]
                 weight = np.random.uniform(weight_min, weight_max)
                 
-                # Biraz gürültü ekle (outlier ve çeşitlilik için)
-                if np.random.random() < 0.05:  # %5 outlier
+                # Add some noise (for outliers and diversity)
+                if np.random.random() < 0.05:  # 5% outliers
                     weight = np.random.uniform(weight_max, weight_max * 1.5)
                 
                 data.append({
@@ -107,29 +107,29 @@ class MetadataCollector:
                      df: pd.DataFrame,
                      filename: str = "metadata.csv"):
         """
-        Metadata'yı CSV olarak kaydet
+        Save metadata as CSV
         
         Args:
-            df: Metadata DataFrame'i
-            filename: Dosya adı
+            df: Metadata DataFrame
+            filename: File name
         """
         filepath = self.base_dir / filename
         df.to_csv(filepath, index=False)
-        print(f"Metadata kaydedildi: {filepath}")
+        print(f"Metadata saved: {filepath}")
     
     def load_metadata(self, filename: str = "metadata.csv") -> pd.DataFrame:
         """
-        Metadata'yı CSV'den yükle
+        Load metadata from CSV
         
         Args:
-            filename: Dosya adı
+            filename: File name
             
         Returns:
-            Metadata DataFrame'i
+            Metadata DataFrame
         """
         filepath = self.base_dir / filename
         if not filepath.exists():
-            raise FileNotFoundError(f"Metadata dosyası bulunamadı: {filepath}")
+            raise FileNotFoundError(f"Metadata file not found: {filepath}")
         
         df = pd.read_csv(filepath)
         return df
@@ -138,14 +138,14 @@ class MetadataCollector:
                                image_paths: Dict[str, List[str]],
                                existing_metadata: Optional[pd.DataFrame] = None) -> pd.DataFrame:
         """
-        Görüntü yollarına göre metadata oluştur
+        Create metadata based on image paths
         
         Args:
-            image_paths: Kategori -> görüntü yolları dictionary'si
-            existing_metadata: Mevcut metadata (varsa)
+            image_paths: Category -> image paths dictionary
+            existing_metadata: Existing metadata (if any)
             
         Returns:
-            Güncellenmiş metadata DataFrame'i
+            Updated metadata DataFrame
         """
         if existing_metadata is None:
             existing_metadata = pd.DataFrame()
@@ -154,12 +154,12 @@ class MetadataCollector:
         
         for category, paths in image_paths.items():
             for i, path in enumerate(paths):
-                # Kategorik özellikler
-                color = random.choice(self.color_options.get(category, ['bilinmiyor']))
-                season = random.choice(self.season_options.get(category, ['bilinmiyor']))
-                origin = random.choice(self.origin_options.get(category, ['bilinmiyor']))
+                # Categorical features
+                color = random.choice(self.color_options.get(category, ['unknown']))
+                season = random.choice(self.season_options.get(category, ['unknown']))
+                origin = random.choice(self.origin_options.get(category, ['unknown']))
                 
-                # Numerik özellikler
+                # Numerical features
                 weight_min, weight_max = self.weight_ranges.get(category, (100, 300))
                 weight = np.random.uniform(weight_min, weight_max)
                 
@@ -181,13 +181,13 @@ class MetadataCollector:
     
     def validate_metadata(self, df: pd.DataFrame) -> Dict[str, bool]:
         """
-        Metadata'yı doğrula
+        Validate metadata
         
         Args:
-            df: Metadata DataFrame'i
+            df: Metadata DataFrame
             
         Returns:
-            Doğrulama sonuçları dictionary'si
+            Validation results dictionary
         """
         results = {
             'no_missing_values': df.isnull().sum().sum() == 0,
@@ -198,7 +198,7 @@ class MetadataCollector:
             'valid_origins': True
         }
         
-        # Kategori bazında renk kontrolü
+        # Color check by category
         for category in self.categories:
             category_df = df[df['category'] == category]
             if not category_df.empty:
