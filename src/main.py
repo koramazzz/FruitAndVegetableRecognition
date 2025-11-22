@@ -3,11 +3,15 @@ Main execution script
 Fruit and Vegetable Recognition Project - CMPE 462 Assignment 1
 """
 
-import numpy as np
-import pandas as pd
-import time
-from pathlib import Path
 import sys
+from pathlib import Path
+
+# Add project root to Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+import numpy as np
+import time
 
 # Import modules
 from src.data_collection import ImageCollector, MetadataCollector, TextCollector
@@ -19,15 +23,13 @@ from src.feature_extraction import (
 from src.models import LogisticRegression, OneVsAllClassifier
 from src.evaluation import (
     calculate_metrics, plot_confusion_matrix, plot_roc_curve,
-    calculate_intra_class_similarity, calculate_inter_class_similarity,
     print_similarity_report, print_outlier_report
 )
 from src.utils import (
-    load_dataset, split_dataset, preprocess_features,
-    print_data_quality_report
+    print_data_quality_report,
+    split_dataset
 )
 from sklearn.linear_model import LogisticRegression as SklearnLR
-from sklearn.metrics import accuracy_score
 
 
 def main():
@@ -37,8 +39,11 @@ def main():
     print("CMPE 462 Assignment 1")
     print("=" * 80)
     
+    # Create reports directory if it doesn't exist
+    reports_dir = project_root / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    
     # Categories
-    categories = ['banana', 'tomato', 'cucumber', 'mandarin', 'potato']
     class_names = ['Banana', 'Tomato', 'Cucumber', 'Mandarin', 'Potato']
     
     # 1. DATA COLLECTION AND PREPARATION
@@ -94,9 +99,9 @@ def main():
         if len(all_image_paths) > 0:
             sample_size = min(100, len(all_image_paths))
             sample_paths = all_image_paths[:sample_size]
-            image_features = image_extractor.extract_features(
-                image_extractor.preprocess_image(sample_paths[0])
-            )
+            # Preprocess image using ImageCollector
+            preprocessed_img = image_collector.preprocess_image(sample_paths[0])
+            image_features = image_extractor.extract_features(preprocessed_img)
             print(f"Image feature size: {len(image_features)}")
     
     # Text features
@@ -196,10 +201,6 @@ def main():
     custom_model.fit(X_train, y_train)
     custom_train_time = time.time() - start_time
     
-    # Validation predictions
-    y_val_pred_custom = custom_model.predict(X_val)
-    y_val_proba_custom = custom_model.predict_proba(X_val)
-    
     # Test predictions
     y_test_pred_custom = custom_model.predict(X_test)
     y_test_proba_custom = custom_model.predict_proba(X_test)
@@ -248,12 +249,12 @@ def main():
     # Confusion matrix
     print("\nPlotting confusion matrix...")
     plot_confusion_matrix(y_test, y_test_pred_custom, class_names=class_names,
-                         save_path="reports/confusion_matrix.png")
+                         save_path=str(reports_dir / "confusion_matrix.png"))
     
     # ROC curve
     print("Plotting ROC curve...")
     plot_roc_curve(y_test, y_test_proba_custom, class_names=class_names,
-                   save_path="reports/roc_curve.png")
+                   save_path=str(reports_dir / "roc_curve.png"))
     
     print("\n" + "=" * 80)
     print("COMPLETED!")

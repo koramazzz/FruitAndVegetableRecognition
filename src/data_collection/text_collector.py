@@ -22,6 +22,15 @@ class TextCollector:
         # Kategoriler
         self.categories = ['muz', 'domates', 'salatalik', 'mandalina', 'patates']
         
+        # Kategori mapping (İngilizce -> Türkçe)
+        self.category_mapping = {
+            'banana': 'muz',
+            'tomato': 'domates',
+            'cucumber': 'salatalik',
+            'mandarin': 'mandalina',
+            'potato': 'patates'
+        }
+        
         # Her kategori için örnek açıklamalar
         self.descriptions = {
             'muz': [
@@ -110,10 +119,13 @@ class TextCollector:
         descriptions_list = []
         
         for sample_id, category in zip(sample_ids, categories):
-            if category not in self.descriptions:
+            # İngilizce kategori isimlerini Türkçe'ye çevir
+            category_key = self.category_mapping.get(category, category)
+            
+            if category_key not in self.descriptions:
                 description = f"{category} kategorisinde bir örnek."
             else:
-                description = random.choice(self.descriptions[category])
+                description = random.choice(self.descriptions[category_key])
             
             descriptions_list.append({
                 'sample_id': sample_id,
