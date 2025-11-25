@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 from skimage.feature import hog, local_binary_pattern
 from skimage import color
-from typing import List, Union, Tuple
+from typing import List, Tuple
 import os
 
 
@@ -93,8 +93,23 @@ class ImageFeatureExtractor:
         lbp = local_binary_pattern(gray, n_points, radius, method=method)
         
         # Histogram oluştur
-        n_bins = lbp.max() + 1
-        hist, _ = np.histogram(lbp.ravel(), bins=n_bins, range=(0, n_bins), density=True)
+        lbp_max = lbp.max()
+        n_bins = lbp_max + 1
+        
+        # Ensure n_bins is a Python int
+        if isinstance(n_bins, (np.integer, np.ndarray)):
+            n_bins = int(n_bins.item() if hasattr(n_bins, 'item') else n_bins)
+        else:
+            n_bins = int(n_bins)
+        
+        try:
+            hist, _ = np.histogram(lbp.ravel(), bins=n_bins, range=(0, n_bins), density=True)
+        except Exception as e:
+            print(f"[ERROR extract_lbp_features] np.histogram failed: {type(e).__name__}: {e}")
+            print(f"[ERROR extract_lbp_features] n_bins value: {n_bins}, type: {type(n_bins)}")
+            import traceback
+            print(f"[ERROR extract_lbp_features] Traceback:\n{traceback.format_exc()}")
+            raise
         
         return hist
     
@@ -103,38 +118,81 @@ class ImageFeatureExtractor:
                                bins: int = 32,
                                color_space: str = 'rgb') -> np.ndarray:
         """
-        Renk histogramı özelliklerini çıkar
+        Extract color histogram features
         
         Args:
-            image: Görüntü array'i (RGB)
-            bins: Histogram bin sayısı
-            color_space: Renk uzayı ('rgb', 'hsv')
+            image: Image array (RGB, normalized 0-1 or uint8 0-255)
+            bins: Number of histogram bins
+            color_space: Color space ('rgb', 'hsv')
             
         Returns:
-            Renk histogram özellik vektörü
+            Color histogram feature vector
         """
+        # Ensure bins is a pure Python integer (not numpy scalar)
+        # Handle all possible types that bins might be
+        if bins is None:
+            bins = 32
+        elif isinstance(bins, np.integer):
+            bins = int(bins.item())
+        elif isinstance(bins, np.ndarray):
+            bins = int(bins.item() if bins.size > 0 else 32)
+        elif isinstance(bins, (float, np.floating)):
+            bins = int(round(bins))
+        else:
+            try:
+                bins = int(bins)
+            except (TypeError, ValueError):
+                bins = 32  # Fallback to default
+        
+        # Final safety check
+        if not isinstance(bins, int) or bins <= 0:
+            bins = 32
+        
+        # Convert to uint8 if needed
+        if image.dtype != np.uint8:
+            # Clamp values to [0, 1] range before conversion
+            image = np.clip(image, 0, 1)
+            image = (image * 255).astype(np.uint8)
+        
+        # Ensure image is contiguous and has correct shape
+        if not image.flags['C_CONTIGUOUS']:
+            image = np.ascontiguousarray(image)
+        
         if color_space == 'hsv':
-            # HSV'ye çevir
-            if image.dtype != np.uint8:
-                image = (image * 255).astype(np.uint8)
+            # Convert to HSV
             hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
             channels = [0, 1, 2]  # H, S, V
         else:
-            # RGB kullan
-            if image.dtype != np.uint8:
-                image = (image * 255).astype(np.uint8)
+            # Use RGB
             hsv = image
             channels = [0, 1, 2]  # R, G, B
         
-        # Her kanal için histogram hesapla
+        # Calculate histogram for each channel
         hist_features = []
-        for channel in channels:
-            hist = cv2.calcHist([hsv], [channel], None, [bins], [0, 256])
-            hist_features.extend(hist.flatten())
         
-        # Normalize et
-        hist_features = np.array(hist_features)
-        hist_features = hist_features / (hist_features.sum() + 1e-7)
+        for channel in channels:
+            # Extract single channel
+            channel_data = hsv[:, :, channel].flatten()
+            
+            # Use numpy histogram with explicit bin edges (most reliable method)
+            # This avoids any type issues with the bins parameter
+            try:
+                bin_edges = np.linspace(0, 256, bins + 1)
+                hist, _ = np.histogram(channel_data, bins=bin_edges, density=False)
+                hist = hist.astype(np.float32)
+                hist_features.extend(hist)
+            except Exception as e:
+                print(f"[ERROR extract_color_histogram] Error in channel {channel}: {type(e).__name__}: {e}")
+                print(f"[ERROR extract_color_histogram] bins value: {bins}, type: {type(bins)}")
+                import traceback
+                print(f"[ERROR extract_color_histogram] Traceback:\n{traceback.format_exc()}")
+                raise
+        
+        # Normalize
+        hist_features = np.array(hist_features, dtype=np.float32)
+        hist_sum = hist_features.sum()
+        if hist_sum > 0:
+            hist_features = hist_features / hist_sum
         
         return hist_features
     

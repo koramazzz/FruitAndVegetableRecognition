@@ -7,6 +7,7 @@ import numpy as np
 from typing import List, Tuple, Optional
 import shutil
 from pathlib import Path
+import random
 
 
 class ImageCollector:
@@ -100,13 +101,15 @@ class ImageCollector:
     
     def augment_image(self, 
                      image: np.ndarray,
-                     augmentations: List[str] = ['flip', 'rotate', 'brightness']) -> List[np.ndarray]:
+                     augmentations: List[str] = ['flip', 'rotate', 'brightness'],
+                     n_augmentations: int = None) -> List[np.ndarray]:
         """
         Apply image augmentation
         
         Args:
-            image: Image array
+            image: Image array (normalized 0-1)
             augmentations: Augmentations to apply
+            n_augmentations: Number of augmentations to generate (if None, uses all available)
             
         Returns:
             List of augmented images
@@ -119,15 +122,49 @@ class ImageCollector:
             augmented_images.append(flipped)
         
         if 'rotate' in augmentations:
-            # Rotate 90 degrees
-            rotated = np.rot90(image)
-            augmented_images.append(rotated)
+            # Rotate 90, 180, 270 degrees
+            for angle in [90, 180, 270]:
+                rotated = np.rot90(image, k=angle//90)
+                augmented_images.append(rotated)
         
         if 'brightness' in augmentations:
-            # Adjust brightness
-            bright = np.clip(image * 1.2, 0, 1)
-            dark = np.clip(image * 0.8, 0, 1)
-            augmented_images.extend([bright, dark])
+            # Adjust brightness (multiple levels)
+            for factor in [0.7, 0.85, 1.15, 1.3]:
+                adjusted = np.clip(image * factor, 0, 1)
+                augmented_images.append(adjusted)
+        
+        if 'contrast' in augmentations:
+            # Adjust contrast
+            for factor in [0.8, 1.2]:
+                mean = image.mean()
+                contrasted = np.clip((image - mean) * factor + mean, 0, 1)
+                augmented_images.append(contrasted)
+        
+        if 'noise' in augmentations:
+            # Add Gaussian noise
+            for std in [0.01, 0.02]:
+                noise = np.random.normal(0, std, image.shape).astype(np.float32)
+                noisy = np.clip(image + noise, 0, 1)
+                augmented_images.append(noisy)
+        
+        if 'crop' in augmentations:
+            # Random crop (center crop with slight offset)
+            h, w = image.shape[:2]
+            crop_size = int(min(h, w) * 0.9)
+            start_h = (h - crop_size) // 2
+            start_w = (w - crop_size) // 2
+            cropped = image[start_h:start_h+crop_size, start_w:start_w+crop_size]
+            # Resize back to original size
+            cropped_resized = cv2.resize(cropped, (w, h))
+            augmented_images.append(cropped_resized)
+        
+        # If n_augmentations is specified, randomly sample that many
+        if n_augmentations is not None and n_augmentations < len(augmented_images):
+            augmented_images = random.sample(augmented_images, n_augmentations)
+        elif n_augmentations is not None and n_augmentations > len(augmented_images):
+            # If we need more, repeat some augmentations
+            while len(augmented_images) < n_augmentations:
+                augmented_images.append(random.choice(augmented_images))
         
         return augmented_images
     

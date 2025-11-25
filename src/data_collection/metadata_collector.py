@@ -24,37 +24,42 @@ class MetadataCollector:
         self.categories = ['banana', 'tomato', 'cucumber', 'mandarin', 'potato']
         
         # Possible values for categorical features
+        # IMPORTANT: All categories use the same value sets to avoid data leakage
+        # This ensures categorical features don't indirectly encode category information
         self.color_options = {
-            'banana': ['yellow', 'green', 'brown'],
-            'tomato': ['red', 'green', 'orange'],
-            'cucumber': ['green', 'white', 'yellow'],
-            'mandarin': ['orange', 'green', 'yellow'],
-            'potato': ['brown', 'yellow', 'white']
+            'banana': ['yellow', 'green', 'brown', 'red', 'orange', 'white'],
+            'tomato': ['yellow', 'green', 'brown', 'red', 'orange', 'white'],
+            'cucumber': ['yellow', 'green', 'brown', 'red', 'orange', 'white'],
+            'mandarin': ['yellow', 'green', 'brown', 'red', 'orange', 'white'],
+            'potato': ['yellow', 'green', 'brown', 'red', 'orange', 'white']
         }
         
         self.season_options = {
             'banana': ['summer', 'winter', 'autumn', 'spring'],
-            'tomato': ['summer', 'autumn'],
-            'cucumber': ['summer', 'spring', 'autumn'],
-            'mandarin': ['winter', 'autumn'],
-            'potato': ['summer', 'autumn', 'spring']
+            'tomato': ['summer', 'winter', 'autumn', 'spring'],
+            'cucumber': ['summer', 'winter', 'autumn', 'spring'],
+            'mandarin': ['summer', 'winter', 'autumn', 'spring'],
+            'potato': ['summer', 'winter', 'autumn', 'spring']
         }
         
         self.origin_options = {
-            'banana': ['tropical', 'imported'],
-            'tomato': ['local', 'imported'],
-            'cucumber': ['local', 'imported'],
-            'mandarin': ['local', 'imported'],
-            'potato': ['local', 'imported']
+            'banana': ['local', 'imported', 'tropical'],
+            'tomato': ['local', 'imported', 'tropical'],
+            'cucumber': ['local', 'imported', 'tropical'],
+            'mandarin': ['local', 'imported', 'tropical'],
+            'potato': ['local', 'imported', 'tropical']
         }
         
         # Ranges for numerical features (in grams)
+        # IMPORTANT: All categories use overlapping ranges to avoid data leakage
+        # This ensures numerical features don't indirectly encode category information
+        # Using a common range (50, 500) for all categories with some variation
         self.weight_ranges = {
-            'banana': (80, 200),
-            'tomato': (50, 300),
-            'cucumber': (100, 400),
-            'mandarin': (50, 150),
-            'potato': (100, 500)
+            'banana': (50, 500),      # Overlaps with all other categories
+            'tomato': (50, 500),      # Overlaps with all other categories
+            'cucumber': (50, 500),    # Overlaps with all other categories
+            'mandarin': (50, 500),    # Overlaps with all other categories
+            'potato': (50, 500)       # Overlaps with all other categories
         }
     
     def generate_metadata(self, 

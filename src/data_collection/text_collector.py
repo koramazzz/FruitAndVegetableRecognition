@@ -31,68 +31,39 @@ class TextCollector:
             'potato': 'patates'
         }
         
-        # Her kategori için örnek açıklamalar
+        # Generic açıklamalar - tüm kategoriler için ortak havuz
+        # IMPORTANT: Using generic descriptions to avoid data leakage
+        # All categories share the same description pool
+        self.generic_descriptions = [
+            "Renkli, çeşitli şekillerde olabilen gıda maddesi.",
+            "Taze, sağlıklı ve besleyici bir ürün.",
+            "Doğal, organik ve lezzetli bir gıda.",
+            "Vitamin ve mineral açısından zengin ürün.",
+            "Mutfakta çeşitli şekillerde kullanılabilen gıda.",
+            "Taze ve kaliteli bir ürün.",
+            "Sağlıklı beslenme için önemli bir gıda maddesi.",
+            "Doğal koşullarda yetiştirilmiş ürün.",
+            "Besin değeri yüksek, lezzetli bir gıda.",
+            "Taze, sulu ve lezzetli bir ürün.",
+            "Sağlıklı ve dengeli beslenme için ideal gıda.",
+            "Doğal renk ve dokuda bir ürün.",
+            "Vitamin açısından zengin, sağlıklı gıda.",
+            "Taze ve kaliteli, mutfakta çok kullanılan ürün.",
+            "Besleyici değeri yüksek, lezzetli bir gıda maddesi.",
+            "Doğal şekil ve renkte bir ürün.",
+            "Taze, sağlıklı ve besleyici gıda.",
+            "Vitamin ve mineral deposu bir ürün.",
+            "Mutfakta çeşitli yemeklerde kullanılabilen gıda.",
+            "Doğal, organik ve kaliteli bir ürün."
+        ]
+        
+        # Her kategori için aynı generic açıklamaları kullan
         self.descriptions = {
-            'muz': [
-                "Sarı renkli, uzun ve kavisli bir meyve.",
-                "Tropikal bir meyve, sarı kabuklu ve tatlı.",
-                "Uzun, sarı renkli, yumuşak dokulu meyve.",
-                "Sarı kabuklu, içi beyaz, tatlı bir meyve.",
-                "Kavisli şekilli, sarı renkli tropikal meyve.",
-                "Yumuşak, sarı renkli, potasyum açısından zengin meyve.",
-                "Uzun ve kavisli, sarı veya yeşil renkli meyve.",
-                "Tropik bölgelerden gelen sarı renkli meyve.",
-                "Kabuğu sarı, içi yumuşak ve tatlı meyve.",
-                "Sarı renkli, uzun şekilli, enerji veren meyve."
-            ],
-            'domates': [
-                "Kırmızı renkli, yuvarlak şekilli sebze.",
-                "Parlak kırmızı renkli, sulu ve lezzetli sebze.",
-                "Yuvarlak veya oval, kırmızı renkli sebze.",
-                "Kırmızı renkli, içi sulu, çekirdekli sebze.",
-                "Parlak kırmızı, yuvarlak şekilli, C vitamini açısından zengin.",
-                "Kırmızı renkli, yumuşak dokulu, salata için ideal sebze.",
-                "Yuvarlak, kırmızı renkli, mutfakta çok kullanılan sebze.",
-                "Parlak kırmızı, sulu, lezzetli bir sebze.",
-                "Kırmızı renkli, yuvarlak, içi çekirdekli sebze.",
-                "Yuvarlak şekilli, kırmızı renkli, salata ve yemek için sebze."
-            ],
-            'salatalik': [
-                "Yeşil renkli, uzun ve silindirik şekilli sebze.",
-                "Açık yeşil renkli, sulu ve ferahlatıcı sebze.",
-                "Uzun, yeşil renkli, çıtır dokulu sebze.",
-                "Yeşil kabuklu, içi sulu, serinletici sebze.",
-                "Uzun ve silindirik, yeşil renkli, düşük kalorili sebze.",
-                "Açık yeşil, uzun şekilli, salata için ideal sebze.",
-                "Yeşil renkli, uzun, sulu ve ferahlatıcı sebze.",
-                "Uzun şekilli, yeşil renkli, çıtır dokulu sebze.",
-                "Yeşil kabuklu, içi sulu, serinletici bir sebze.",
-                "Uzun ve silindirik, yeşil renkli, sağlıklı sebze."
-            ],
-            'mandalina': [
-                "Turuncu renkli, yuvarlak, küçük turunçgiller meyvesi.",
-                "Turuncu kabuklu, kolay soyulabilen, tatlı meyve.",
-                "Küçük, turuncu renkli, portakala benzer meyve.",
-                "Turuncu renkli, yuvarlak, C vitamini açısından zengin.",
-                "Küçük ve yuvarlak, turuncu renkli, tatlı meyve.",
-                "Turuncu kabuklu, kolay soyulabilen, sulu meyve.",
-                "Yuvarlak şekilli, turuncu renkli, kış meyvesi.",
-                "Turuncu renkli, küçük, portakala benzer meyve.",
-                "Küçük ve yuvarlak, turuncu renkli, tatlı ve sulu.",
-                "Turuncu kabuklu, kolay soyulabilen, C vitamini deposu."
-            ],
-            'patates': [
-                "Kahverengi kabuklu, yuvarlak veya oval şekilli sebze.",
-                "Kahverengi renkli, sert dokulu, nişastalı sebze.",
-                "Yuvarlak veya oval, kahverengi kabuklu sebze.",
-                "Kahverengi renkli, içi beyaz, pişirilerek tüketilen sebze.",
-                "Yuvarlak şekilli, kahverengi kabuklu, karbonhidrat açısından zengin.",
-                "Kahverengi renkli, sert dokulu, mutfakta çok kullanılan sebze.",
-                "Yuvarlak veya oval, kahverengi renkli, doyurucu sebze.",
-                "Kahverengi kabuklu, içi beyaz, pişirilerek tüketilen sebze.",
-                "Yuvarlak şekilli, kahverengi renkli, nişastalı sebze.",
-                "Kahverengi renkli, sert dokulu, temel gıda maddesi."
-            ]
+            'muz': self.generic_descriptions,
+            'domates': self.generic_descriptions,
+            'salatalik': self.generic_descriptions,
+            'mandalina': self.generic_descriptions,
+            'patates': self.generic_descriptions
         }
     
     def generate_descriptions(self, 
