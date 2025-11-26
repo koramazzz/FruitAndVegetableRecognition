@@ -1,8 +1,8 @@
 ID,label,weight_gr,color,season,origin
-banana_000,Banana,120,Yellow,Summer,Ecuador
-cucumber_000,Cucumber,150,Green,Summer,Turkey
-mandarin_000,Mandarin,80,Orange,Winter,Spain
-potato_000,Potato,200,Brown,Fall,Turkey
-tomato_000,Tomato,100,Red,Summer,Turkey
-banana_001,Banana,130,Yellow,Summer,Brazil
-mandarin_001,Mandarin,85,Orange,Winter,Turkey
+banana_001,Banana,120,Yellow,Summer,Ecuador
+cucumber_001,Cucumber,150,Green,Summer,Turkey
+mandarin_001,Mandarin,80,Orange,Winter,Spain
+potato_001,Potato,200,Brown,Fall,Turkey
+tomato_001,Tomato,100,Red,Summer,Turkey
+banana_002,Banana,130,Yellow,Summer,Brazil
+mandarin_002,Mandarin,85,Orange,Winter,Turkey
