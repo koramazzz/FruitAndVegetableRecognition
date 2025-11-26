@@ -2,18 +2,21 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 
+# --- CONFIGURATION ---
+METADATA_PATH = '../dataset/raw/metadata.csv'
+
 # 1. Load the Data
-df = pd.read_csv('../dataset/metadata_raw.csv')
+df = pd.read_csv(METADATA_PATH)
 print("Original Data (only first 5 rows):")
 print(df[['label', 'weight_gr', 'color', 'season', 'origin']].head())
 print("-" * 30)
 
-# --- NUMERICAL FEATURE (Weight) ---
+# NUMERICAL FEATURE (Weight)
 # We must normalize weight so it is between [0, 1]
 scaler = MinMaxScaler()
 weight_feature = scaler.fit_transform(df[['weight_gr']]) 
 
-# --- CATEGORICAL FEATURES (Color, Season, Origin) ---
+# CATEGORICAL FEATURES (Color, Season, Origin)
 # We define the specific categories to ensure fixed dimensionality, and handle unknown categories.
 # Map unknown values to "Other" before encoding
 

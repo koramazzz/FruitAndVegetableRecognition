@@ -3,10 +3,10 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 # --- CONFIGURATION ---
-DESCRIPTION_PATH = '../dataset/description_raw.csv'
+DESCRIPTION_PATH = '../dataset/raw/description.csv'
 EMBEDDING_MODEL = 'all-MiniLM-L6-v2' # Output dimension: 384
 
-# 1. Load Data
+# 1. Load the Data
 try:
     df = pd.read_csv(DESCRIPTION_PATH)
 except FileNotFoundError:
