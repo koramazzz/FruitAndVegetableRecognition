@@ -27,14 +27,6 @@ wheels/
 .ipynb_checkpoints
 *.ipynb_checkpoints/
 
-# Data files
-data/raw/*
-data/processed/*
-data/train/*
-data/test/*
-data/val/*
-!data/.gitkeep
-
 # IDE
 .vscode/
 .idea/
