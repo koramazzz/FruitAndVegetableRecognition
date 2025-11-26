@@ -1,0 +1,126 @@
+sample_id,category,description
+banana_000,banana,Vitamin ve mineral açısından zengin ürün.
+banana_001,banana,"Renkli, çeşitli şekillerde olabilen gıda maddesi."
+banana_002,banana,"Besin değeri yüksek, lezzetli bir gıda."
+banana_003,banana,Doğal koşullarda yetiştirilmiş ürün.
+banana_004,banana,Doğal koşullarda yetiştirilmiş ürün.
+banana_005,banana,Mutfakta çeşitli şekillerde kullanılabilen gıda.
+banana_006,banana,Vitamin ve mineral açısından zengin ürün.
+banana_007,banana,Vitamin ve mineral deposu bir ürün.
+banana_008,banana,"Doğal, organik ve lezzetli bir gıda."
+banana_009,banana,Mutfakta çeşitli yemeklerde kullanılabilen gıda.
+banana_010,banana,"Taze ve kaliteli, mutfakta çok kullanılan ürün."
+banana_011,banana,"Taze, sağlıklı ve besleyici bir ürün."
+banana_012,banana,"Renkli, çeşitli şekillerde olabilen gıda maddesi."
+banana_013,banana,"Doğal, organik ve lezzetli bir gıda."
+banana_014,banana,Sağlıklı beslenme için önemli bir gıda maddesi.
+banana_015,banana,Doğal koşullarda yetiştirilmiş ürün.
+banana_016,banana,"Taze, sağlıklı ve besleyici gıda."
+banana_017,banana,"Doğal, organik ve kaliteli bir ürün."
+banana_018,banana,"Renkli, çeşitli şekillerde olabilen gıda maddesi."
+banana_019,banana,Vitamin ve mineral deposu bir ürün.
+banana_020,banana,Sağlıklı beslenme için önemli bir gıda maddesi.
+banana_021,banana,Vitamin ve mineral deposu bir ürün.
+banana_022,banana,"Taze ve kaliteli, mutfakta çok kullanılan ürün."
+banana_023,banana,Doğal koşullarda yetiştirilmiş ürün.
+banana_024,banana,"Besleyici değeri yüksek, lezzetli bir gıda maddesi."
+tomato_000,tomato,Doğal koşullarda yetiştirilmiş ürün.
+tomato_001,tomato,Doğal şekil ve renkte bir ürün.
+tomato_002,tomato,Doğal koşullarda yetiştirilmiş ürün.
+tomato_003,tomato,"Besin değeri yüksek, lezzetli bir gıda."
+tomato_004,tomato,"Taze ve kaliteli, mutfakta çok kullanılan ürün."
+tomato_005,tomato,Doğal şekil ve renkte bir ürün.
+tomato_006,tomato,"Renkli, çeşitli şekillerde olabilen gıda maddesi."
+tomato_007,tomato,"Vitamin açısından zengin, sağlıklı gıda."
+tomato_008,tomato,Sağlıklı ve dengeli beslenme için ideal gıda.
+tomato_009,tomato,"Vitamin açısından zengin, sağlıklı gıda."
+tomato_010,tomato,Taze ve kaliteli bir ürün.
+tomato_011,tomato,"Besleyici değeri yüksek, lezzetli bir gıda maddesi."
+tomato_012,tomato,Mutfakta çeşitli şekillerde kullanılabilen gıda.
+tomato_013,tomato,"Doğal, organik ve kaliteli bir ürün."
+tomato_014,tomato,Vitamin ve mineral deposu bir ürün.
+tomato_015,tomato,"Renkli, çeşitli şekillerde olabilen gıda maddesi."
+tomato_016,tomato,"Vitamin açısından zengin, sağlıklı gıda."
+tomato_017,tomato,Mutfakta çeşitli yemeklerde kullanılabilen gıda.
+tomato_018,tomato,Mutfakta çeşitli yemeklerde kullanılabilen gıda.
+tomato_019,tomato,"Renkli, çeşitli şekillerde olabilen gıda maddesi."
+tomato_020,tomato,"Doğal, organik ve lezzetli bir gıda."
+tomato_021,tomato,"Taze ve kaliteli, mutfakta çok kullanılan ürün."
+tomato_022,tomato,Mutfakta çeşitli şekillerde kullanılabilen gıda.
+tomato_023,tomato,"Besleyici değeri yüksek, lezzetli bir gıda maddesi."
+tomato_024,tomato,Taze ve kaliteli bir ürün.
+cucumber_000,cucumber,"Taze, sağlıklı ve besleyici bir ürün."
+cucumber_001,cucumber,"Taze, sağlıklı ve besleyici bir ürün."
+cucumber_002,cucumber,"Taze, sulu ve lezzetli bir ürün."
+cucumber_003,cucumber,Doğal şekil ve renkte bir ürün.
+cucumber_004,cucumber,Vitamin ve mineral açısından zengin ürün.
+cucumber_005,cucumber,Vitamin ve mineral açısından zengin ürün.
+cucumber_006,cucumber,Doğal koşullarda yetiştirilmiş ürün.
+cucumber_007,cucumber,Vitamin ve mineral deposu bir ürün.
+cucumber_008,cucumber,Mutfakta çeşitli şekillerde kullanılabilen gıda.
+cucumber_009,cucumber,"Vitamin açısından zengin, sağlıklı gıda."
+cucumber_010,cucumber,"Besleyici değeri yüksek, lezzetli bir gıda maddesi."
+cucumber_011,cucumber,Doğal renk ve dokuda bir ürün.
+cucumber_012,cucumber,Vitamin ve mineral deposu bir ürün.
+cucumber_013,cucumber,"Taze ve kaliteli, mutfakta çok kullanılan ürün."
+cucumber_014,cucumber,Mutfakta çeşitli yemeklerde kullanılabilen gıda.
+cucumber_015,cucumber,Mutfakta çeşitli şekillerde kullanılabilen gıda.
+cucumber_016,cucumber,"Taze ve kaliteli, mutfakta çok kullanılan ürün."
+cucumber_017,cucumber,Vitamin ve mineral açısından zengin ürün.
+cucumber_018,cucumber,Doğal şekil ve renkte bir ürün.
+cucumber_019,cucumber,"Doğal, organik ve kaliteli bir ürün."
+cucumber_020,cucumber,"Taze ve kaliteli, mutfakta çok kullanılan ürün."
+cucumber_021,cucumber,"Besin değeri yüksek, lezzetli bir gıda."
+cucumber_022,cucumber,"Taze, sağlıklı ve besleyici bir ürün."
+cucumber_023,cucumber,Doğal renk ve dokuda bir ürün.
+cucumber_024,cucumber,Sağlıklı beslenme için önemli bir gıda maddesi.
+mandarin_000,mandarin,Sağlıklı beslenme için önemli bir gıda maddesi.
+mandarin_001,mandarin,"Taze, sağlıklı ve besleyici bir ürün."
+mandarin_002,mandarin,Sağlıklı beslenme için önemli bir gıda maddesi.
+mandarin_003,mandarin,"Taze, sağlıklı ve besleyici bir ürün."
+mandarin_004,mandarin,Sağlıklı ve dengeli beslenme için ideal gıda.
+mandarin_005,mandarin,"Taze, sulu ve lezzetli bir ürün."
+mandarin_006,mandarin,"Taze, sağlıklı ve besleyici gıda."
+mandarin_007,mandarin,"Vitamin açısından zengin, sağlıklı gıda."
+mandarin_008,mandarin,Vitamin ve mineral deposu bir ürün.
+mandarin_009,mandarin,Doğal şekil ve renkte bir ürün.
+mandarin_010,mandarin,"Besin değeri yüksek, lezzetli bir gıda."
+mandarin_011,mandarin,"Taze, sağlıklı ve besleyici bir ürün."
+mandarin_012,mandarin,Sağlıklı beslenme için önemli bir gıda maddesi.
+mandarin_013,mandarin,"Taze, sulu ve lezzetli bir ürün."
+mandarin_014,mandarin,Doğal renk ve dokuda bir ürün.
+mandarin_015,mandarin,"Taze, sağlıklı ve besleyici bir ürün."
+mandarin_016,mandarin,Sağlıklı ve dengeli beslenme için ideal gıda.
+mandarin_017,mandarin,"Besin değeri yüksek, lezzetli bir gıda."
+mandarin_018,mandarin,Vitamin ve mineral açısından zengin ürün.
+mandarin_019,mandarin,Doğal renk ve dokuda bir ürün.
+mandarin_020,mandarin,"Taze ve kaliteli, mutfakta çok kullanılan ürün."
+mandarin_021,mandarin,"Vitamin açısından zengin, sağlıklı gıda."
+mandarin_022,mandarin,"Besleyici değeri yüksek, lezzetli bir gıda maddesi."
+mandarin_023,mandarin,"Vitamin açısından zengin, sağlıklı gıda."
+mandarin_024,mandarin,Sağlıklı ve dengeli beslenme için ideal gıda.
+potato_000,potato,"Besleyici değeri yüksek, lezzetli bir gıda maddesi."
+potato_001,potato,"Taze, sulu ve lezzetli bir ürün."
+potato_002,potato,"Renkli, çeşitli şekillerde olabilen gıda maddesi."
+potato_003,potato,"Vitamin açısından zengin, sağlıklı gıda."
+potato_004,potato,"Besin değeri yüksek, lezzetli bir gıda."
+potato_005,potato,"Renkli, çeşitli şekillerde olabilen gıda maddesi."
+potato_006,potato,Sağlıklı beslenme için önemli bir gıda maddesi.
+potato_007,potato,Mutfakta çeşitli yemeklerde kullanılabilen gıda.
+potato_008,potato,"Doğal, organik ve lezzetli bir gıda."
+potato_009,potato,"Taze, sağlıklı ve besleyici bir ürün."
+potato_010,potato,"Taze ve kaliteli, mutfakta çok kullanılan ürün."
+potato_011,potato,Doğal renk ve dokuda bir ürün.
+potato_012,potato,"Doğal, organik ve lezzetli bir gıda."
+potato_013,potato,Vitamin ve mineral deposu bir ürün.
+potato_014,potato,"Taze, sağlıklı ve besleyici bir ürün."
+potato_015,potato,"Doğal, organik ve lezzetli bir gıda."
+potato_016,potato,Doğal şekil ve renkte bir ürün.
+potato_017,potato,"Taze, sağlıklı ve besleyici bir ürün."
+potato_018,potato,"Taze, sulu ve lezzetli bir ürün."
+potato_019,potato,"Taze ve kaliteli, mutfakta çok kullanılan ürün."
+potato_020,potato,Taze ve kaliteli bir ürün.
+potato_021,potato,Mutfakta çeşitli şekillerde kullanılabilen gıda.
+potato_022,potato,"Taze ve kaliteli, mutfakta çok kullanılan ürün."
+potato_023,potato,Doğal renk ve dokuda bir ürün.
+potato_024,potato,"Vitamin açısından zengin, sağlıklı gıda."
