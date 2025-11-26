@@ -38,19 +38,67 @@ wheels/
 .DS_Store
 Thumbs.db
 
+# Dataset folder
+# Note: src/ folder is tracked (source code)
+# For dataset/, you may want to track the structure but ignore large files
+# Uncomment the lines below if you want to ignore image files in dataset:
+# dataset/images/**/*.jpg
+# dataset/images/**/*.jpeg
+# dataset/images/**/*.png
+# dataset/images/**/*.gif
+# dataset/images/**/*.bmp
+# dataset/images/**/*.tiff
+# dataset/images/**/*.tif
+# Or ignore entire dataset folder:
+# dataset/
+
 # Models and outputs
 *.pkl
 *.h5
+*.hdf5
 *.model
+*.pt
+*.pth
+*.ckpt
 models/
 outputs/
 results/
+checkpoints/
+weights/
 
 # Logs
 *.log
 logs/
+tensorboard_logs/
+wandb/
 
 # Environment
 .env
 .env.local
+
+# Data processing temporary files
+# Uncomment if you want to ignore data files (assignments may require tracking these):
+# *.csv
+# *.tsv
+# *.parquet
+# *.feather
+*.npy
+*.npz
+
+# Cache directories
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Source code is tracked (src/ folder)
+# Add specific ignores for src/ if needed:
+# src/**/__pycache__/
+# src/**/*.pyc
 
