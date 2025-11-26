@@ -5,23 +5,34 @@ from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 # 1. Load the Data
 df = pd.read_csv('../dataset/metadata_raw.csv')
 print("Original Data (only first 5 rows):")
-print(df[['label', 'weight_g', 'color', 'season', 'origin']].head())
+print(df[['label', 'weight_gr', 'color', 'season', 'origin']].head())
 print("-" * 30)
 
 # --- NUMERICAL FEATURE (Weight) ---
 # We must normalize weight so it is between [0, 1]
 scaler = MinMaxScaler()
-weight_feature = scaler.fit_transform(df[['weight_g']]) 
+weight_feature = scaler.fit_transform(df[['weight_gr']]) 
 
 # --- CATEGORICAL FEATURES (Color, Season, Origin) ---
 # We define the specific categories to ensure fixed dimensionality, and handle unknown categories.
-enc_color = OneHotEncoder(categories=[['Red', 'Green', 'Yellow', 'Orange', 'Brown', 'Purple', 'Other']], 
+# Map unknown values to "Other" before encoding
+
+# Define valid categories
+valid_origins = ['Turkey', 'Spain', 'USA', 'Brazil', 'Ecuador', 'Other']
+valid_colors = ['Red', 'Green', 'Yellow', 'Orange', 'Brown', 'Purple', 'Other']
+
+# Replace unknown origin values with "Other"
+df['origin'] = df['origin'].apply(lambda x: x if x in valid_origins else 'Other')
+# Replace unknown color values with "Other"
+df['color'] = df['color'].apply(lambda x: x if x in valid_colors else 'Other')
+
+enc_color = OneHotEncoder(categories=[valid_colors], 
                           handle_unknown='ignore', sparse_output=False)
 
 enc_season = OneHotEncoder(categories=[['Spring', 'Summer', 'Fall', 'Winter']], 
                            handle_unknown='ignore', sparse_output=False)
 
-enc_origin = OneHotEncoder(categories=[['Turkey', 'Spain', 'USA', 'Brazil', 'Ecuador', 'Other']], 
+enc_origin = OneHotEncoder(categories=[valid_origins], 
                            handle_unknown='ignore', sparse_output=False)
 
 # 2. Transform the raw columns
