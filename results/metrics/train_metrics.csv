@@ -1,0 +1,5 @@
+Feature Set,Accuracy,Precision (Macro),Recall (Macro),F1-Score (Macro),AUC (Macro)
+Images Only,0.707,0.7152671290597877,0.707,0.7043580657735456,0.879050625
+Categorical/Numerical Attributes,1.0,1.0,1.0,1.0,1.0
+Text Descriptions,1.0,1.0,1.0,1.0,1.0
+Fused Features (All),1.0,1.0,1.0,1.0,1.0

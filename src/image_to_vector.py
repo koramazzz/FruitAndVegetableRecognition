@@ -8,7 +8,8 @@ from sklearn.preprocessing import MinMaxScaler
 
 # --- CONFIGURATION ---
 METADATA_PATH = '../dataset/raw/metadata.csv'
-IMAGES_BASE_PATH = '../dataset/images/original'
+IMAGES_ORIGINAL_PATH = '../dataset/images/original'
+IMAGES_GENERATED_PATH = '../dataset/images/generated'
 
 # Feature extraction parameters
 COLOR_HIST_BINS = 64  # Bins per channel for color histogram
@@ -141,6 +142,32 @@ def extract_all_features(image_path):
     return all_features
 
 
+def find_image_path(sample_id, label):
+    """
+    Find image path by checking both original and generated folders.
+    Original folder may have _result suffix, generated folder has direct name.
+    """
+    label_lower = label.lower()
+    
+    # Try original folder first (may have _result suffix)
+    original_paths = [
+        os.path.join(IMAGES_ORIGINAL_PATH, label_lower, f"{sample_id}_result.jpg"),
+        os.path.join(IMAGES_ORIGINAL_PATH, label_lower, f"{sample_id}.jpg"),
+    ]
+    
+    for path in original_paths:
+        if os.path.exists(path):
+            return path
+    
+    # Try generated folder (category_gen subfolder)
+    generated_path = os.path.join(IMAGES_GENERATED_PATH, f"{label_lower}_gen", f"{sample_id}.jpg")
+    if os.path.exists(generated_path):
+        return generated_path
+    
+    # Not found
+    return None
+
+
 # Extract features for all images
 image_features_list = []
 failed_ids = []
@@ -151,8 +178,16 @@ for idx, row in df_meta.iterrows():
     sample_id = row['ID']
     label = row['label']
     
-    # Construct image path: dataset/images/original/{label}/{ID}.jpg
-    image_path = os.path.join(IMAGES_BASE_PATH, label.lower(), f"{sample_id}.jpg")
+    # Find image path (checks both original and generated folders)
+    image_path = find_image_path(sample_id, label)
+    
+    if image_path is None:
+        print(f"  Image not found for {sample_id}")
+        failed_ids.append(sample_id)
+        # Use zero vector as placeholder
+        if feature_dim is not None:
+            image_features_list.append(np.zeros(feature_dim))
+        continue
     
     try:
         features = extract_all_features(image_path)

@@ -9,7 +9,8 @@ from skimage.feature import local_binary_pattern, graycomatrix, graycoprops
 # --- CONFIGURATION ---
 METADATA_PATH = '../dataset/raw/metadata.csv'
 DESCRIPTION_PATH = '../dataset/raw/description.csv'
-IMAGES_BASE_PATH = '../dataset/images/original'  # Ensure this points to the folder containing 'Banana', 'Tomato' etc.
+IMAGES_ORIGINAL_PATH = '../dataset/images/original'
+IMAGES_GENERATED_PATH = '../dataset/images/generated'
 OUTPUT_FOLDER = '../dataset/processed'
 EMBEDDING_MODEL = 'all-MiniLM-L6-v2'
 
@@ -159,31 +160,84 @@ image_features_list = []
 failed_indices = []
 feature_dim = None
 
+def find_image_path(sample_id, label):
+    """
+    Find image path by checking both original and generated folders.
+    Original folder may have _result suffix, generated folder has direct name.
+    """
+    label_lower = label.lower()
+    
+    # Try original folder first (may have _result suffix)
+    original_paths = [
+        os.path.join(IMAGES_ORIGINAL_PATH, label_lower, f"{sample_id}_result.jpg"),
+        os.path.join(IMAGES_ORIGINAL_PATH, label_lower, f"{sample_id}.jpg"),
+    ]
+    
+    for path in original_paths:
+        if os.path.exists(path):
+            return path
+    
+    # Try generated folder (category_gen subfolder)
+    generated_path = os.path.join(IMAGES_GENERATED_PATH, f"{label_lower}_gen", f"{sample_id}.jpg")
+    if os.path.exists(generated_path):
+        return generated_path
+    
+    # Not found
+    return None
+
+total_samples = len(df)
 for idx, row in df.iterrows():
     sample_id = row['ID']
     label = row['label']
+    current_num = idx + 1
     
-    # Construct path: dataset/images/original/banana/banana_001.jpg
-    image_path = os.path.join(IMAGES_BASE_PATH, label.lower(), f"{sample_id}.jpg")
+    # Show progress
+    print(f"  Processing {sample_id} ({current_num}/{total_samples})", end='\r')
     
-    try:
-        feats = get_image_vector(image_path)
-        if feature_dim is None: feature_dim = len(feats)
-        image_features_list.append(feats)
-    except Exception as e:
-        print(f"  Error loading {sample_id}: {e}")
+    image_path = find_image_path(sample_id, label)
+    
+    if image_path is None:
+        print(f"\n  Image not found for {sample_id} ({current_num}/{total_samples})")
         failed_indices.append(idx)
         # Placeholder: Zero vector
-        if feature_dim: image_features_list.append(np.zeros(feature_dim))
-        else: image_features_list.append(None) # Handle if very first fails
+        if feature_dim: 
+            image_features_list.append(np.zeros(feature_dim))
+        else: 
+            # Need to determine feature_dim first - use a dummy image
+            print(f"  Cannot determine feature dimension, skipping {sample_id}")
+            failed_indices.append(idx)
+            continue
+    else:
+        try:
+            feats = get_image_vector(image_path)
+            if feature_dim is None: 
+                feature_dim = len(feats)
+            image_features_list.append(feats)
+        except Exception as e:
+            print(f"\n  Error loading {sample_id} from {image_path}: {e} ({current_num}/{total_samples})")
+            failed_indices.append(idx)
+            # Placeholder: Zero vector
+            if feature_dim: 
+                image_features_list.append(np.zeros(feature_dim))
+            else: 
+                print(f"  Cannot determine feature dimension, skipping {sample_id}")
+                continue
+
+# Print final progress
+print(f"\n  Completed processing all images ({total_samples}/{total_samples})")
 
 # Convert list to array
+if len(image_features_list) == 0:
+    raise ValueError("No image features extracted! Check image paths.")
+
 image_vector_raw = np.array(image_features_list)
 
 # Normalize Image Features (Critical step!)
 scaler_img = MinMaxScaler()
 image_vector = scaler_img.fit_transform(image_vector_raw)
 print(f"Image Features Shape: {image_vector.shape}")
+if len(failed_indices) > 0:
+    print(f"Warning: {len(failed_indices)} images failed to load (using zero vectors)")
 
 
 print("\n--- 5. FINAL FUSION AND SAVING ---")
@@ -200,7 +254,7 @@ print(f" -> Text Dims:     {text_vector.shape[1]}")
 print(f" -> Image Dims:    {image_vector.shape[1]}")
 
 if X_final.shape[1] > 500:
-    print("⚠️  NOTE: Dimensions > 500.")
+    print("NOTE: Dimensions > 500.")
 
 # Save
 x_path = os.path.join(OUTPUT_FOLDER, 'X_final.npy')
@@ -209,6 +263,6 @@ y_path = os.path.join(OUTPUT_FOLDER, 'y_final.npy')
 np.save(x_path, X_final)
 np.save(y_path, y_final)
 
-print(f"\n✅ SUCCESS! Files saved to:")
+print(f"\nSUCCESS! Files saved to:")
 print(f"   {x_path}")
 print(f"   {y_path}")
