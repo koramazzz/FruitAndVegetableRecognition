@@ -30,11 +30,16 @@ DIMS_TEXT = 384
 DIMS_IMG = 285
 
 # Model hyperparameters
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.1
 MAX_ITER = 1000
 TOLERANCE = 1e-6
 REGULARIZATION = 'l2'
-LAMBDA_REG = 0.01
+LAMBDA_REG = 0.1  # Increased from 0.01 to reduce overfitting risk
+
+# Fused model feature weights (only applied to fused model) 
+FUSED_WEIGHT_METADATA = 0.5
+FUSED_WEIGHT_TEXT = 0.5 
+FUSED_WEIGHT_IMAGE = 1.0
 
 # Train/Val split
 VAL_SIZE = 500  # 500 samples for validation (as per assignment)
@@ -156,9 +161,28 @@ X_image_train = X_image[indices_train]
 X_image_val = X_image[indices_val]
 X_image_test = X_image[indices_test]
 
-X_fused_train = X_fused[indices_train]
-X_fused_val = X_fused[indices_val]
-X_fused_test = X_fused[indices_test]
+print(f"\n--- Applying weights to fused features ---")
+print(f"  Metadata weight: {FUSED_WEIGHT_METADATA}")
+print(f"  Text weight:     {FUSED_WEIGHT_TEXT}")
+print(f"  Image weight:    {FUSED_WEIGHT_IMAGE}")
+
+# Weight each feature set
+X_meta_weighted_train = X_meta_train * FUSED_WEIGHT_METADATA
+X_meta_weighted_val = X_meta_val * FUSED_WEIGHT_METADATA
+X_meta_weighted_test = X_meta_test * FUSED_WEIGHT_METADATA
+
+X_text_weighted_train = X_text_train * FUSED_WEIGHT_TEXT
+X_text_weighted_val = X_text_val * FUSED_WEIGHT_TEXT
+X_text_weighted_test = X_text_test * FUSED_WEIGHT_TEXT
+
+X_image_weighted_train = X_image_train * FUSED_WEIGHT_IMAGE
+X_image_weighted_val = X_image_val * FUSED_WEIGHT_IMAGE
+X_image_weighted_test = X_image_test * FUSED_WEIGHT_IMAGE
+
+# Combine weighted features
+X_fused_train = np.hstack([X_meta_weighted_train, X_text_weighted_train, X_image_weighted_train])
+X_fused_val = np.hstack([X_meta_weighted_val, X_text_weighted_val, X_image_weighted_val])
+X_fused_test = np.hstack([X_meta_weighted_test, X_text_weighted_test, X_image_weighted_test])
 
 # ==========================================
 # 4. TRAIN MODELS FOR EACH FEATURE SET
@@ -190,8 +214,13 @@ feature_sets = {
         'X_train': X_fused_train,
         'X_val': X_fused_val,
         'X_test': X_fused_test,
-        'name': 'Fused Features (All)',
-        'dims': X_fused.shape[1]
+        'name': f'Fused Features (All) [Meta:{FUSED_WEIGHT_METADATA}, Text:{FUSED_WEIGHT_TEXT}, Img:{FUSED_WEIGHT_IMAGE}]',
+        'dims': X_fused_train.shape[1],
+        'weights': {
+            'metadata': FUSED_WEIGHT_METADATA,
+            'text': FUSED_WEIGHT_TEXT,
+            'image': FUSED_WEIGHT_IMAGE
+        }
     }
 }
 
@@ -303,7 +332,12 @@ split_data = {
     'y_train': y_train,
     'y_val': y_val,
     'y_test': y_test,
-    'feature_sets': feature_sets
+    'feature_sets': feature_sets,
+    'fused_weights': {
+        'metadata': FUSED_WEIGHT_METADATA,
+        'text': FUSED_WEIGHT_TEXT,
+        'image': FUSED_WEIGHT_IMAGE
+    }
 }
 split_path = os.path.join(OUTPUT_FOLDER, 'split_data.pkl')
 with open(split_path, 'wb') as f:
