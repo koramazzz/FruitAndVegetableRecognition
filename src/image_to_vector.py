@@ -13,7 +13,7 @@ IMAGES_BASE_PATH = '../dataset/images/original'
 # Feature extraction parameters
 COLOR_HIST_BINS = 64  # Bins per channel for color histogram
 LBP_RADIUS = 3
-LBP_N_POINTS = 24
+LBP_N_POINTS = LBP_RADIUS * 8
 
 print("--- 1. LOADING DATA ---")
 # Load metadata to get IDs and labels

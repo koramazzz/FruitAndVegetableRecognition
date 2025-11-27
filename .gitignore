@@ -52,7 +52,7 @@ Thumbs.db
 # Or ignore entire dataset folder:
 # dataset/
 
-# Models and outputs
+# Models and outputs (file patterns only, not folders)
 *.pkl
 *.h5
 *.hdf5
@@ -60,17 +60,11 @@ Thumbs.db
 *.pt
 *.pth
 *.ckpt
-models/
-outputs/
-results/
-checkpoints/
-weights/
+# Note: All folders are tracked, only ignore specific file types
 
-# Logs
+# Logs (file patterns only)
 *.log
-logs/
-tensorboard_logs/
-wandb/
+# Note: log folders are tracked, only ignore .log files
 
 # Environment
 .env
@@ -82,8 +76,13 @@ wandb/
 # *.tsv
 # *.parquet
 # *.feather
-*.npy
-*.npz
+# Note: dataset/processed/*.npy may be needed for assignment
+# Uncomment the lines below if you want to ignore processed data files:
+# *.npy
+# *.npz
+# Or ignore only large processed data but keep structure:
+# dataset/processed/*.npy
+# dataset/processed/*.npz
 
 # Cache directories
 .cache/
