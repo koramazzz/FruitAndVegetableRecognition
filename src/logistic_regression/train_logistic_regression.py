@@ -34,7 +34,7 @@ LEARNING_RATE = 0.1
 MAX_ITER = 1000
 TOLERANCE = 1e-6
 REGULARIZATION = 'l2'
-LAMBDA_REG = 0.1  # Increased from 0.01 to reduce overfitting risk
+LAMBDA_REG = 0.1
 
 # Fused model feature weights (only applied to fused model) 
 FUSED_WEIGHT_METADATA = 0.5
@@ -242,19 +242,30 @@ for feature_type, data in feature_sets.items():
         verbose=True
     )
     
-    # Train model
+    # Train model and measure time
+    import time
+    start_time = time.time()
     model.fit(
         data['X_train'],
         y_train,
         data['X_val'],
         y_val
     )
+    training_time = time.time() - start_time
     
     # Store trained model
     trained_models[feature_type] = {
         'model': model,
         'name': data['name'],
-        'X_test': data['X_test']
+        'X_test': data['X_test'],
+        'training_time': training_time,
+        'config': {
+            'learning_rate': LEARNING_RATE,
+            'max_iter': MAX_ITER,
+            'tolerance': TOLERANCE,
+            'regularization': REGULARIZATION,
+            'lambda_reg': LAMBDA_REG
+        }
     }
     
     # Plot and save loss history
