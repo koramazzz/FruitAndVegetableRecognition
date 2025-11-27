@@ -6,18 +6,22 @@ Task 2(a): Train separate classifiers for images, metadata, text, and fused feat
 import numpy as np
 import os
 import sys
+import pickle
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from models import OneVsAllClassifier
 
 # --- CONFIGURATION ---
-INPUT_FOLDER = '../../dataset/processed'
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.join(SCRIPT_DIR, '../..')
+
+INPUT_FOLDER = os.path.join(PROJECT_ROOT, 'dataset/processed')
 X_PATH = os.path.join(INPUT_FOLDER, 'X_final.npy')
 Y_PATH = os.path.join(INPUT_FOLDER, 'y_final.npy')
 
-OUTPUT_FOLDER = '../../results'
+OUTPUT_FOLDER = os.path.join(PROJECT_ROOT, 'results')
 LOSS_PLOTS_FOLDER = os.path.join(OUTPUT_FOLDER, 'loss_plots')
 
 # Feature dimensions (from similarity_analysis.py)
@@ -99,7 +103,7 @@ print(f"Target split: Test={TEST_SIZE}, Val={VAL_SIZE}, Train=remaining")
 # Adjust split sizes based on available data
 # If we don't have enough samples, use proportional splits
 if n_samples < TEST_SIZE + VAL_SIZE:
-    print(f"⚠️  Warning: Only {n_samples} samples available (need {TEST_SIZE + VAL_SIZE} for test+val).")
+    print(f"Warning: Only {n_samples} samples available (need {TEST_SIZE + VAL_SIZE} for test+val).")
     print(f"  Using proportional splits based on assignment ratios.")
     # Assignment ratios: Test ~14%, Val ~14%, Train ~72% (500/3500, 500/3500, 2500/3500)
     # For 402 samples: Test ~14% = 56, Val ~14% = 56, Train ~72% = 290
@@ -284,12 +288,27 @@ print("\n" + "=" * 70)
 print("TRAINING COMPLETED FOR ALL FEATURE SETS")
 print("=" * 70)
 
-# Save trained models (optional - for later use)
+# Save trained models using pickle
 print("\n--- Saving trained models ---")
-models_path = os.path.join(OUTPUT_FOLDER, 'trained_models.npz')
-# Note: We can't directly save Python objects, so we'll save model parameters
-# For now, models are in memory. We can add model saving functionality later if needed.
-print(f"  Models are stored in memory. Add model saving functionality if needed.")
+models_path = os.path.join(OUTPUT_FOLDER, 'trained_models.pkl')
+with open(models_path, 'wb') as f:
+    pickle.dump(trained_models, f)
+print(f"  Models saved to: {models_path}")
+
+# Also save train/test split indices and labels for evaluation
+split_data = {
+    'indices_train': indices_train,
+    'indices_val': indices_val,
+    'indices_test': indices_test,
+    'y_train': y_train,
+    'y_val': y_val,
+    'y_test': y_test,
+    'feature_sets': feature_sets
+}
+split_path = os.path.join(OUTPUT_FOLDER, 'split_data.pkl')
+with open(split_path, 'wb') as f:
+    pickle.dump(split_data, f)
+print(f"  Split data saved to: {split_path}")
 
 print(f"\nAll training completed!")
 print(f"   Loss plots saved to: {LOSS_PLOTS_FOLDER}")

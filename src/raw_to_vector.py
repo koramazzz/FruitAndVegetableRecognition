@@ -147,8 +147,11 @@ print("\n--- 3. PROCESSING TEXT DESCRIPTIONS ---")
 print(f"Loading Model: {EMBEDDING_MODEL}...")
 text_model = SentenceTransformer(EMBEDDING_MODEL)
 descriptions = df['description'].tolist()
-text_vector = text_model.encode(descriptions, convert_to_numpy=True)
-print(f"Text Features Shape: {text_vector.shape}")
+text_vector_raw = text_model.encode(descriptions, convert_to_numpy=True)
+
+scaler_text = MinMaxScaler()
+text_vector = scaler_text.fit_transform(text_vector_raw)
+print(f"Text Features Shape: {text_vector.shape} (normalized)")
 
 
 print("\n--- 4. PROCESSING IMAGES ---")
