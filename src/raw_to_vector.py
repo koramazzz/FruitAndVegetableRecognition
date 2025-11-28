@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import os
 from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
+from sklearn.decomposition import PCA
 from sentence_transformers import SentenceTransformer
 from skimage.feature import local_binary_pattern, graycomatrix, graycoprops
 
@@ -18,6 +19,9 @@ EMBEDDING_MODEL = 'all-MiniLM-L6-v2'
 COLOR_HIST_BINS = 64
 LBP_RADIUS = 3
 LBP_N_POINTS = 24
+
+TARGET_TEXT_DIMS = 280
+TARGET_IMAGE_DIMS = 201
 
 # Ensure output directory exists
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -151,8 +155,15 @@ descriptions = df['description'].tolist()
 text_vector_raw = text_model.encode(descriptions, convert_to_numpy=True)
 
 scaler_text = MinMaxScaler()
-text_vector = scaler_text.fit_transform(text_vector_raw)
-print(f"Text Features Shape: {text_vector.shape} (normalized)")
+text_vector_normalized = scaler_text.fit_transform(text_vector_raw)
+print(f"Text Features Shape (before PCA): {text_vector_normalized.shape} (normalized)")
+
+# Apply PCA to reduce text dimensions from 384 to TARGET_TEXT_DIMS
+print(f"Applying PCA to reduce text features from {text_vector_normalized.shape[1]} to {TARGET_TEXT_DIMS} dimensions...")
+pca_text = PCA(n_components=TARGET_TEXT_DIMS)
+text_vector = pca_text.fit_transform(text_vector_normalized)
+print(f"Text Features Shape (after PCA): {text_vector.shape}")
+print(f"  Explained variance ratio: {pca_text.explained_variance_ratio_.sum():.4f} ({pca_text.explained_variance_ratio_.sum()*100:.2f}%)")
 
 
 print("\n--- 4. PROCESSING IMAGES ---")
@@ -234,27 +245,36 @@ image_vector_raw = np.array(image_features_list)
 
 # Normalize Image Features (Critical step!)
 scaler_img = MinMaxScaler()
-image_vector = scaler_img.fit_transform(image_vector_raw)
-print(f"Image Features Shape: {image_vector.shape}")
+image_vector_normalized = scaler_img.fit_transform(image_vector_raw)
+print(f"Image Features Shape (before PCA): {image_vector_normalized.shape}")
+
+# Apply PCA to reduce image dimensions from 285 to TARGET_IMAGE_DIMS
+print(f"Applying PCA to reduce image features from {image_vector_normalized.shape[1]} to {TARGET_IMAGE_DIMS} dimensions...")
+pca_image = PCA(n_components=TARGET_IMAGE_DIMS)
+image_vector = pca_image.fit_transform(image_vector_normalized)
+print(f"Image Features Shape (after PCA): {image_vector.shape}")
+print(f"  Explained variance ratio: {pca_image.explained_variance_ratio_.sum():.4f} ({pca_image.explained_variance_ratio_.sum()*100:.2f}%)")
+
 if len(failed_indices) > 0:
     print(f"Warning: {len(failed_indices)} images failed to load (using zero vectors)")
 
 
 print("\n--- 5. FINAL FUSION AND SAVING ---")
-# Fuse: [Metadata (18)] + [Text (384)] + [Images (189)]
 X_final = np.hstack([meta_vector, text_vector, image_vector])
 y_final = df['label'].values
 
 # Stats
 print(f"\nFINAL STATISTICS:")
 print(f"Total Samples: {X_final.shape[0]}")
-print(f"Total Dimensions: {X_final.shape[1]}")
+print(f"Total Dimensions: {X_final.shape[1]} (Target: 499)")
 print(f" -> Metadata Dims: {meta_vector.shape[1]}")
-print(f" -> Text Dims:     {text_vector.shape[1]}")
-print(f" -> Image Dims:    {image_vector.shape[1]}")
+print(f" -> Text Dims:     {text_vector.shape[1]} (reduced from 384)")
+print(f" -> Image Dims:    {image_vector.shape[1]} (reduced from 285)")
 
-if X_final.shape[1] > 500:
-    print("NOTE: Dimensions > 500.")
+if X_final.shape[1] != 499:
+    print(f"WARNING: Total dimensions ({X_final.shape[1]}) does not match target (499). Difference: {X_final.shape[1] - 499}")
+else:
+    print("✓ Target dimension (499) achieved!")
 
 # Save
 x_path = os.path.join(OUTPUT_FOLDER, 'X_final.npy')

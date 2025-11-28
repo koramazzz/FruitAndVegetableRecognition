@@ -24,10 +24,10 @@ Y_PATH = os.path.join(INPUT_FOLDER, 'y_final.npy')
 OUTPUT_FOLDER = os.path.join(PROJECT_ROOT, 'results')
 LOSS_PLOTS_FOLDER = os.path.join(OUTPUT_FOLDER, 'loss_plots')
 
-# Feature dimensions (from similarity_analysis.py)
+# Feature dimensions (after PCA reduction to 499 total)
 DIMS_META = 18
-DIMS_TEXT = 384
-DIMS_IMG = 285
+DIMS_TEXT = 280  # Reduced from 384 using PCA
+DIMS_IMG = 201  # Reduced from 285 using PCA
 
 # Model hyperparameters
 LEARNING_RATE = 0.1
