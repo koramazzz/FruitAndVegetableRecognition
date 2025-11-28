@@ -11,8 +11,8 @@ Y_PATH = os.path.join(INPUT_FOLDER, 'y_final.npy')
 
 # Define the slice indices based on dimensions of the features
 DIMS_META = 18
-DIMS_TEXT = 384
-DIMS_IMG = 285
+DIMS_TEXT = 280  # Reduced from 384 using PCA
+DIMS_IMG = 201   # Reduced from 285 using PCA
 
 def analyze_modality(X, y, modality_name):
     print(f"\n{'='*20} ANALYSIS: {modality_name} {'='*20}")
