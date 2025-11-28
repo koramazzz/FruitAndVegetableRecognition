@@ -352,4 +352,3 @@ print(f"  Split data saved to: {split_path}")
 
 print(f"\nAll training completed!")
 print(f"   Loss plots saved to: {LOSS_PLOTS_FOLDER}")
-print(f"   Next step: Calculate metrics (accuracy, precision, recall, F1, AUC)")
