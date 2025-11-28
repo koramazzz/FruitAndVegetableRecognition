@@ -1,17 +1,11 @@
-"""
-One-vs-All multiclass classifier using binary logistic regression
-"""
-
 import numpy as np
 from typing import Optional, Dict
 from .logistic_regression import LogisticRegression
 
 
 class OneVsAllClassifier:
-    """
-    Multiclass classifier using One-vs-All approach.
-    Trains a separate binary logistic regression classifier for each class.
-    """
+    # Multiclass classifier using One-vs-All approach.
+    # Trains a separate binary logistic regression classifier for each class.
     
     def __init__(self,
                  learning_rate: float = 0.01,
@@ -20,15 +14,6 @@ class OneVsAllClassifier:
                  regularization: str = 'l2',
                  lambda_reg: float = 0.01,
                  verbose: bool = False):
-        """
-        Args:
-            learning_rate: Learning rate for each binary classifier
-            max_iter: Maximum iterations for each binary classifier
-            tolerance: Convergence tolerance for each binary classifier
-            regularization: Regularization type ('l2', 'l1', None)
-            lambda_reg: Regularization coefficient
-            verbose: Show detailed output during training
-        """
         self.learning_rate = learning_rate
         self.max_iter = max_iter
         self.tolerance = tolerance
@@ -49,15 +34,7 @@ class OneVsAllClassifier:
             y: np.ndarray,
             X_val: Optional[np.ndarray] = None,
             y_val: Optional[np.ndarray] = None):
-        """
-        Train one binary classifier for each class using one-vs-all approach.
-        
-        Args:
-            X: Feature matrix (n_samples, n_features)
-            y: Class labels (n_samples,) - can be strings or integers
-            X_val: Validation feature matrix (optional)
-            y_val: Validation labels (optional)
-        """
+        # Train one binary classifier for each class using one-vs-all approach
         # Get unique classes and sort them for consistency
         self.classes = np.unique(y)
         self.n_classes = len(self.classes)
@@ -116,16 +93,7 @@ class OneVsAllClassifier:
             print("Training completed for all classes!")
     
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
-        """
-        Predict class probabilities for each sample.
-        
-        Args:
-            X: Feature matrix (n_samples, n_features)
-            
-        Returns:
-            Probability matrix (n_samples, n_classes)
-            Each row contains probabilities for all classes
-        """
+        # Predict class probabilities for each sample
         if self.classifiers is None or len(self.classifiers) == 0:
             raise ValueError("Model has not been trained. Call fit() first.")
         
@@ -145,30 +113,14 @@ class OneVsAllClassifier:
         return probabilities
     
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """
-        Predict class labels for samples.
-        
-        Args:
-            X: Feature matrix (n_samples, n_features)
-            
-        Returns:
-            Predicted class labels (n_samples,)
-        """
+        # Predict class labels for samples
         probabilities = self.predict_proba(X)
         # Select class with highest probability
         class_indices = np.argmax(probabilities, axis=1)
         return self.classes[class_indices]
     
     def get_loss_history(self, class_label: Optional[str] = None) -> Dict:
-        """
-        Get loss history for a specific class or all classes.
-        
-        Args:
-            class_label: Specific class label. If None, returns all histories.
-            
-        Returns:
-            Dictionary of loss histories
-        """
+        # Get loss history for a specific class or all classes
         if class_label is not None:
             if class_label not in self.loss_histories:
                 raise ValueError(f"Class '{class_label}' not found.")
@@ -176,15 +128,7 @@ class OneVsAllClassifier:
         return self.loss_histories.copy()
     
     def get_val_loss_history(self, class_label: Optional[str] = None) -> Dict:
-        """
-        Get validation loss history for a specific class or all classes.
-        
-        Args:
-            class_label: Specific class label. If None, returns all histories.
-            
-        Returns:
-            Dictionary of validation loss histories
-        """
+        # Get validation loss history for a specific class or all classes
         if class_label is not None:
             if class_label not in self.val_loss_histories:
                 raise ValueError(f"Class '{class_label}' not found or no validation data.")
@@ -192,7 +136,7 @@ class OneVsAllClassifier:
         return self.val_loss_histories.copy()
     
     def get_params(self) -> Dict:
-        """Get model parameters"""
+        # Get model parameters
         return {
             'learning_rate': self.learning_rate,
             'max_iter': self.max_iter,

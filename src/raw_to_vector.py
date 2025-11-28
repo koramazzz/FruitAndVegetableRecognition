@@ -106,7 +106,7 @@ def get_image_vector(image_path):
     ])
 
 # ==========================================
-# MAIN PIPELINE
+# MAIN
 # ==========================================
 
 print("--- 1. LOADING AND ALIGNING DATA ---")
@@ -114,7 +114,7 @@ print("--- 1. LOADING AND ALIGNING DATA ---")
 df_meta = pd.read_csv(METADATA_PATH)
 df_desc = pd.read_csv(DESCRIPTION_PATH)
 
-# CRITICAL: Merge on 'ID' to align Descriptions with Metadata/Images
+# Merge on 'ID' to align Descriptions with Metadata/Images
 df = pd.merge(df_meta, df_desc, on='ID')
 print(f"Total Aligned Samples: {len(df)}")
 print(f"Sample IDs (First 3): {df['ID'].head(3).tolist()}")
@@ -178,7 +178,7 @@ def find_image_path(sample_id, label):
     """
     label_lower = label.lower()
     
-    # Try original folder first (may have _result suffix)
+    # Try original folder first
     original_paths = [
         os.path.join(IMAGES_ORIGINAL_PATH, label_lower, f"{sample_id}_result.jpg"),
         os.path.join(IMAGES_ORIGINAL_PATH, label_lower, f"{sample_id}.jpg"),
@@ -188,7 +188,7 @@ def find_image_path(sample_id, label):
         if os.path.exists(path):
             return path
     
-    # Try generated folder (category_gen subfolder)
+    # Try generated folder
     generated_path = os.path.join(IMAGES_GENERATED_PATH, f"{label_lower}_gen", f"{sample_id}.jpg")
     if os.path.exists(generated_path):
         return generated_path
@@ -243,7 +243,7 @@ if len(image_features_list) == 0:
 
 image_vector_raw = np.array(image_features_list)
 
-# Normalize Image Features (Critical step!)
+# Normalize Image Features
 scaler_img = MinMaxScaler()
 image_vector_normalized = scaler_img.fit_transform(image_vector_raw)
 print(f"Image Features Shape (before PCA): {image_vector_normalized.shape}")

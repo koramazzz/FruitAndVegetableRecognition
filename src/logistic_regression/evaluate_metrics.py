@@ -1,7 +1,4 @@
-"""
-Evaluate classification metrics for trained logistic regression models
-Task 2(b): Report training and test classification metrics and compare performances
-"""
+# Task 2)b
 
 import numpy as np
 import pickle
@@ -349,4 +346,3 @@ print(f"\nResults saved to: {OUTPUT_FOLDER}")
 print("  - train_metrics.csv")
 print("  - test_metrics.csv")
 print("  - comparison_metrics.csv")
-

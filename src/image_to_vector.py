@@ -27,10 +27,8 @@ print("-" * 50)
 print("\n--- 2. EXTRACTING IMAGE FEATURES ---")
 
 def extract_color_histogram(image, bins=COLOR_HIST_BINS):
-    """
-    Extract color histogram from RGB image.
-    Returns: Flattened histogram vector (bins * 3 channels)
-    """
+    # Extract color histogram from RGB image.
+
     hist_r = cv2.calcHist([image], [0], None, [bins], [0, 256])
     hist_g = cv2.calcHist([image], [1], None, [bins], [0, 256])
     hist_b = cv2.calcHist([image], [2], None, [bins], [0, 256])
@@ -46,10 +44,8 @@ def extract_color_histogram(image, bins=COLOR_HIST_BINS):
 
 
 def extract_lbp_features(image_gray):
-    """
-    Extract Local Binary Pattern (LBP) features.
-    Returns: Uniform LBP histogram (59 dimensions)
-    """
+    # Extract Local Binary Pattern (LBP) features.
+
     # Calculate LBP
     lbp = local_binary_pattern(image_gray, LBP_N_POINTS, LBP_RADIUS, method='uniform')
     
@@ -59,10 +55,8 @@ def extract_lbp_features(image_gray):
 
 
 def extract_glcm_features(image_gray):
-    """
-    Extract Gray-Level Co-occurrence Matrix (GLCM) features.
-    Returns: 13 features (4 properties averaged + 9 individual angle features)
-    """
+    # Extract Gray-Level Co-occurrence Matrix (GLCM) features.
+
     # Calculate GLCM for multiple angles
     glcm = graycomatrix(image_gray, distances=[1], angles=[0, np.pi/4, np.pi/2, 3*np.pi/4], 
                        levels=256, symmetric=True, normed=True)
@@ -88,10 +82,8 @@ def extract_glcm_features(image_gray):
 
 
 def extract_statistical_features(image):
-    """
-    Extract statistical features from RGB image.
-    Returns: 21 features (7 stats * 3 channels)
-    """
+    # Extract statistical features from RGB image.
+
     features = []
     
     for channel_idx in range(3):  # R, G, B channels
@@ -110,10 +102,8 @@ def extract_statistical_features(image):
 
 
 def extract_all_features(image_path):
-    """
-    Extract all features from a single image.
-    Returns: Combined feature vector
-    """
+    # Extract all features from a single image.
+
     # Load image
     image = cv2.imread(image_path)
     if image is None:
@@ -143,13 +133,11 @@ def extract_all_features(image_path):
 
 
 def find_image_path(sample_id, label):
-    """
-    Find image path by checking both original and generated folders.
-    Original folder may have _result suffix, generated folder has direct name.
-    """
+    # Find image path by checking both original and generated folders.
+
     label_lower = label.lower()
     
-    # Try original folder first (may have _result suffix)
+    # Try original folder first
     original_paths = [
         os.path.join(IMAGES_ORIGINAL_PATH, label_lower, f"{sample_id}_result.jpg"),
         os.path.join(IMAGES_ORIGINAL_PATH, label_lower, f"{sample_id}.jpg"),
@@ -171,7 +159,7 @@ def find_image_path(sample_id, label):
 # Extract features for all images
 image_features_list = []
 failed_ids = []
-feature_dim = None  # Will be set after first successful extraction
+feature_dim = None 
 
 print(f"Processing {len(df_meta)} images...")
 for idx, row in df_meta.iterrows():
@@ -204,11 +192,11 @@ for idx, row in df_meta.iterrows():
     except Exception as e:
         print(f"  Error processing {sample_id}: {e}")
         failed_ids.append(sample_id)
-        # Use zero vector as placeholder (dimension will be set from first successful)
+        # Use zero vector as placeholder
         if feature_dim is not None:
             image_features_list.append(np.zeros(feature_dim))
         else:
-            # If first image fails, skip it (will be handled later)
+            # If first image fails, skip it
             pass
 
 # Convert to numpy array
@@ -230,7 +218,6 @@ print(f"Expected Total: {COLOR_HIST_BINS * 3 + 59 + 13 + 21} dimensions")
 
 
 print("\n--- 4. NORMALIZATION (OPTIONAL) ---")
-# Optional: Normalize features using MinMaxScaler
 scaler = MinMaxScaler()
 image_vector_normalized = scaler.fit_transform(image_vector)
 print(f"Normalized feature vector shape: {image_vector_normalized.shape}")

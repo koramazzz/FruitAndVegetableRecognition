@@ -1,7 +1,4 @@
-"""
-Compare our implementation with Scikit-learn's LogisticRegression
-Task 2(c): Compare performance and runtime with Scikit-learn implementation
-"""
+# Task 2)c
 
 import numpy as np
 import pickle
@@ -86,7 +83,7 @@ print("\n--- 2. TRAINING SCIKIT-LEARN MODELS ---")
 
 # Convert regularization parameter
 # Scikit-learn uses C = 1 / (lambda * n_samples) for L2 regularization
-# We'll use C = 1 / lambda_reg to approximate
+# We use C = 1 / lambda_reg to approximate
 C_value = 1.0 / LAMBDA_REG if LAMBDA_REG > 0 else 1.0
 
 # Scikit-learn uses tol (tolerance) instead of tolerance
@@ -94,9 +91,6 @@ tol_value = TOLERANCE
 
 # Scikit-learn uses max_iter instead of max_iter (same name)
 max_iter_value = MAX_ITER
-
-# Note: Scikit-learn doesn't have a direct learning_rate parameter for LogisticRegression
-# It uses different solvers. We'll use 'lbfgs' which is default and works well.
 
 sklearn_models = {}
 sklearn_training_times = {}
@@ -483,4 +477,3 @@ print("  - plots/performance_comparison_*.png")
 print("  - plots/runtime_comparison.png")
 print("  - plots/performance_difference_heatmap.png")
 print("  - plots/summary_comparison_table.png")
-

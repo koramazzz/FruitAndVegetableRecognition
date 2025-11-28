@@ -1,7 +1,4 @@
-"""
-Train logistic regression classifiers for different feature sets
-Task 2(a): Train separate classifiers for images, metadata, text, and fused features
-"""
+# Task 2)a
 
 import numpy as np
 import os
@@ -42,8 +39,8 @@ FUSED_WEIGHT_TEXT = 0.5
 FUSED_WEIGHT_IMAGE = 1.0
 
 # Train/Val split
-VAL_SIZE = 500  # 500 samples for validation (as per assignment)
-TEST_SIZE = 500  # 500 samples for test (as per assignment)
+VAL_SIZE = 500  # 500 samples for validation
+TEST_SIZE = 500  # 500 samples for test
 RANDOM_STATE = 42
 
 # Ensure output directories exist
@@ -51,7 +48,7 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 os.makedirs(LOSS_PLOTS_FOLDER, exist_ok=True)
 
 print("=" * 70)
-print("LOGISTIC REGRESSION TRAINING - TASK 2(a)")
+print("LOGISTIC REGRESSION TRAINING - TASK 2)a")
 print("=" * 70)
 
 # ==========================================
@@ -109,9 +106,7 @@ print(f"Target split: Test={TEST_SIZE}, Val={VAL_SIZE}, Train=remaining")
 # If we don't have enough samples, use proportional splits
 if n_samples < TEST_SIZE + VAL_SIZE:
     print(f"Warning: Only {n_samples} samples available (need {TEST_SIZE + VAL_SIZE} for test+val).")
-    print(f"  Using proportional splits based on assignment ratios.")
-    # Assignment ratios: Test ~14%, Val ~14%, Train ~72% (500/3500, 500/3500, 2500/3500)
-    # For 402 samples: Test ~14% = 56, Val ~14% = 56, Train ~72% = 290
+    print(f"  Using proportional splits.")
     test_ratio = 0.14  # ~14% for test
     val_ratio = 0.14   # ~14% for validation (of remaining after test)
     
@@ -120,7 +115,7 @@ if n_samples < TEST_SIZE + VAL_SIZE:
     remaining_after_test = n_samples - test_size_actual
     val_size_actual = int(remaining_after_test * val_ratio)
     
-    print(f"  Using: Test={test_size_actual} ({test_ratio:.1%}), Val={val_size_actual} (~{val_ratio:.1%}), Train=rest")
+    print(f"  Using: Test={test_size_actual} ({test_ratio:.1%}), Val={val_size_actual} ({val_ratio:.1%}), Train=rest")
 else:
     # We have enough samples, use fixed sizes
     test_size_actual = TEST_SIZE
@@ -358,4 +353,3 @@ print(f"  Split data saved to: {split_path}")
 print(f"\nAll training completed!")
 print(f"   Loss plots saved to: {LOSS_PLOTS_FOLDER}")
 print(f"   Next step: Calculate metrics (accuracy, precision, recall, F1, AUC)")
-

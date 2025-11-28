@@ -1,14 +1,10 @@
-"""
-Logistic regression classifier - from scratch implementation
-"""
-
 import numpy as np
 from typing import Optional, Tuple
 import matplotlib.pyplot as plt
 
 
 class LogisticRegression:
-    """Logistic regression classifier (binary)"""
+    # Logistic regression classifier (binary)
     
     def __init__(self, 
                  learning_rate: float = 0.01,
@@ -17,15 +13,6 @@ class LogisticRegression:
                  regularization: str = 'l2',
                  lambda_reg: float = 0.01,
                  verbose: bool = False):
-        """
-        Args:
-            learning_rate: Learning rate
-            max_iter: Maximum number of iterations
-            tolerance: Convergence tolerance
-            regularization: Regularization type ('l2', 'l1', None)
-            lambda_reg: Regularization coefficient
-            verbose: Show detailed output
-        """
         self.learning_rate = learning_rate
         self.max_iter = max_iter
         self.tolerance = tolerance
@@ -40,31 +27,12 @@ class LogisticRegression:
         self.iterations = 0
     
     def _sigmoid(self, z: np.ndarray) -> np.ndarray:
-        """
-        Sigmoid activation function
-        
-        Args:
-            z: Input
-            
-        Returns:
-            Sigmoid output
-        """
-        # Numerical stability
+        # Sigmoid activation function
         z = np.clip(z, -500, 500)
         return 1 / (1 + np.exp(-z))
     
     def _compute_loss(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        """
-        Compute binary cross-entropy loss
-        
-        Args:
-            y_true: True labels
-            y_pred: Predicted probabilities
-            
-        Returns:
-            Loss value
-        """
-        # Numerical stability - add small epsilon
+        # Compute binary cross-entropy loss
         epsilon = 1e-15
         y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
         
@@ -82,17 +50,6 @@ class LogisticRegression:
                           X: np.ndarray,
                           y_true: np.ndarray,
                           y_pred: np.ndarray) -> Tuple[np.ndarray, float]:
-        """
-        Compute gradients
-        
-        Args:
-            X: Feature matrix
-            y_true: True labels
-            y_pred: Predicted probabilities
-            
-        Returns:
-            (weight_gradients, bias_gradient) tuple
-        """
         n_samples = X.shape[0]
         
         # Gradients with respect to loss
@@ -113,15 +70,7 @@ class LogisticRegression:
         return weight_grad, bias_grad
     
     def fit(self, X: np.ndarray, y: np.ndarray, X_val: Optional[np.ndarray] = None, y_val: Optional[np.ndarray] = None):
-        """
-        Train the model
-        
-        Args:
-            X: Feature matrix (n_samples, n_features)
-            y: Labels (n_samples,)
-            X_val: Validation feature matrix (optional)
-            y_val: Validation labels (optional)
-        """
+        # Train the model
         n_samples, n_features = X.shape
         
         # Initialize weights
@@ -175,15 +124,7 @@ class LogisticRegression:
         self.iterations = iteration + 1
     
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
-        """
-        Predict probabilities
-        
-        Args:
-            X: Feature matrix
-            
-        Returns:
-            Positive class probabilities (n_samples,)
-        """
+        # Predict probabilities
         if self.weights is None:
             raise ValueError("Model has not been trained. Call fit() first.")
         
@@ -191,26 +132,12 @@ class LogisticRegression:
         return self._sigmoid(z)
     
     def predict(self, X: np.ndarray, threshold: float = 0.5) -> np.ndarray:
-        """
-        Predict class labels
-        
-        Args:
-            X: Feature matrix
-            threshold: Decision threshold
-            
-        Returns:
-            Class predictions (n_samples,)
-        """
+        # Predict class labels
         probabilities = self.predict_proba(X)
         return (probabilities >= threshold).astype(int)
     
     def plot_loss(self, save_path: Optional[str] = None):
-        """
-        Plot loss history
-        
-        Args:
-            save_path: Save path (None to show)
-        """
+        # Plot loss history
         plt.figure(figsize=(10, 6))
         plt.plot(self.loss_history, label='Training Loss')
         if len(self.val_loss_history) > 0:
@@ -229,7 +156,7 @@ class LogisticRegression:
         plt.close()
     
     def get_params(self) -> dict:
-        """Get model parameters"""
+        # Get model parameters
         return {
             'weights': self.weights,
             'bias': self.bias,
@@ -240,7 +167,6 @@ class LogisticRegression:
         }
     
     def set_params(self, weights: np.ndarray, bias: float):
-        """Set model parameters"""
+        # Set model parameters
         self.weights = weights
         self.bias = bias
-

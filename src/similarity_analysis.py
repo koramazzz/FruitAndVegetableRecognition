@@ -35,7 +35,6 @@ def analyze_modality(X, y, modality_name):
             samples_b = X[y == cls_b]
             
             # Compute pairwise similarity between group A and group B
-            # Note: This can be memory intensive for huge datasets, but fine for 3000 samples
             sim_matrix = cosine_similarity(samples_a, samples_b)
             avg_sim = np.mean(sim_matrix)
             
@@ -66,9 +65,6 @@ def analyze_modality(X, y, modality_name):
         
         if num_outliers > 0:
             print(f"Class {cls}: Found {num_outliers} outliers (Threshold: {threshold:.4f})")
-            # Optional: Print indices relative to the class list or original dataset if needed
-            # outlier_global_indices = class_indices[outlier_mask]
-            # print(f"  -> Indices: {outlier_global_indices}")
         else:
             print(f"Class {cls}: No significant outliers found.")
 
