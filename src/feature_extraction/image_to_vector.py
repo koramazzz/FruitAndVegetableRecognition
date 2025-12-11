@@ -7,9 +7,9 @@ from skimage import color
 from sklearn.preprocessing import MinMaxScaler
 
 # --- CONFIGURATION ---
-METADATA_PATH = '../dataset/raw/metadata.csv'
-IMAGES_ORIGINAL_PATH = '../dataset/images/original'
-IMAGES_GENERATED_PATH = '../dataset/images/generated'
+METADATA_PATH = '../../dataset/raw/metadata.csv'
+IMAGES_ORIGINAL_PATH = '../../dataset/images/original'
+IMAGES_GENERATED_PATH = '../../dataset/images/generated'
 
 # Feature extraction parameters
 COLOR_HIST_BINS = 64  # Bins per channel for color histogram

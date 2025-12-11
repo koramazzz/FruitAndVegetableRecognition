@@ -8,11 +8,12 @@ from sentence_transformers import SentenceTransformer
 from skimage.feature import local_binary_pattern, graycomatrix, graycoprops
 
 # --- CONFIGURATION ---
-METADATA_PATH = '../dataset/raw/metadata.csv'
-DESCRIPTION_PATH = '../dataset/raw/description.csv'
-IMAGES_ORIGINAL_PATH = '../dataset/images/original'
-IMAGES_GENERATED_PATH = '../dataset/images/generated'
-OUTPUT_FOLDER = '../dataset/processed'
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+METADATA_PATH = os.path.join(BASE_DIR, "dataset", "raw", "metadata.csv")
+DESCRIPTION_PATH = os.path.join(BASE_DIR, "dataset", "raw", "description.csv")
+IMAGES_ORIGINAL_PATH = os.path.join(BASE_DIR, "dataset", "images", "original")
+IMAGES_GENERATED_PATH = os.path.join(BASE_DIR, "dataset", "images", "generated")
+OUTPUT_FOLDER = os.path.join(BASE_DIR, "dataset", "processed")
 EMBEDDING_MODEL = 'all-MiniLM-L6-v2'
 
 # Image Feature Settings

@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 
 # --- CONFIGURATION ---
-METADATA_PATH = '../dataset/raw/metadata.csv'
+METADATA_PATH = '../../dataset/raw/metadata.csv'
 
 # 1. Load the Data
 df = pd.read_csv(METADATA_PATH)
