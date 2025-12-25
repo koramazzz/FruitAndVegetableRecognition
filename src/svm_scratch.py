@@ -543,7 +543,7 @@ def main():
     
     farthest_df = pd.DataFrame(farthest_rows)
     print(farthest_df.head(10).to_string(index=False)) # Show table in console
-    farthest_df.to_csv(RESULTS_DIR / "svm_farthest_points.csv", index=False)
+    farthest_df.to_csv(RESULTS_DIR / "farthest_points.csv", index=False)
     
     print("\nVisualizing top 4 farthest points...")
     visualize_farthest_points(analysis["farthest_points"])
@@ -560,7 +560,7 @@ def main():
     print(f"\nClosest support vector pairs from DIFFERENT classes:")
     print(cross_class[['id1', 'class1', 'id2', 'class2', 'distance']].head(10).to_string(index=False))
     
-    sv_distances.to_csv(RESULTS_DIR / "svm_sv_pairwise_distances.csv", index=False)
+    sv_distances.to_csv(RESULTS_DIR / "pairwise_distances.csv", index=False)
 
     print("\nVisualizing closest pairs...")
     visualize_closest_pairs(sv_distances)
