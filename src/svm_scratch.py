@@ -10,7 +10,9 @@ import pickle
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+import cv2
 import cvxopt
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -27,11 +29,97 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "dataset" / "processed"
 RESULTS_DIR = BASE_DIR / "results"
 
+RAW_DIR = BASE_DIR / "dataset" / "raw"
+IMAGES_ORIGINAL_DIR = BASE_DIR / "dataset" / "images" / "original"
+IMAGES_GENERATED_DIR = BASE_DIR / "dataset" / "images" / "generated"
+
 X_PATH = DATA_DIR / "X_final.npy"
 Y_PATH = DATA_DIR / "y_final.npy"
 
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
+
+# ============================================================================
+# Helper Functions
+# ============================================================================
+def find_image_path(sample_id, label):
+    """Locate image file on disk."""
+    label_lower = label.lower()
+    paths = [
+        IMAGES_ORIGINAL_DIR / label_lower / f"{sample_id}_result.jpg",
+        IMAGES_ORIGINAL_DIR / label_lower / f"{sample_id}.jpg",
+        IMAGES_GENERATED_DIR / f"{label_lower}_gen" / f"{sample_id}.jpg"
+    ]
+    for p in paths:
+        if p.exists(): return str(p)
+    return None
+
+def visualize_farthest_points(farthest_points_dict):
+    """Show the specific farthest points in a window."""
+    # We want to show 4 specific images as requested (Banana +/- and Cucumber +/-)
+    # Or generically, the first few. Let's do a generic grid.
+    
+    # Collect points to plot
+    points_to_plot = []
+    for class_name, data in farthest_points_dict.items():
+        if "positive_class" in data:
+            d = data["positive_class"]
+            points_to_plot.append((class_name, "+1 (Typical)", d))
+        if "negative_class" in data:
+            d = data["negative_class"]
+            points_to_plot.append((class_name, "-1 (Outlier)", d))
+            
+    # Limit to first 4 for the specific user request, or show more if you like
+    # User asked for "Banana Pos/Neg" and "Cucumber Pos/Neg" specifically
+    subset = points_to_plot[:4] 
+
+    fig, axes = plt.subplots(1, 4, figsize=(16, 5))
+    fig.suptitle('Farthest Points from Hyperplane (Top 4)', fontsize=16)
+    
+    for ax, (cls_name, side, info) in zip(axes, subset):
+        img_path = find_image_path(info['id'], info['original_label'])
+        if img_path:
+            img = cv2.imread(img_path)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            ax.imshow(img)
+            ax.set_title(f"Classifier: {cls_name}\nSide: {side}\nTrue: {info['original_label']}\nID: {info['id']}")
+        else:
+            ax.text(0.5, 0.5, "Image Not Found")
+        ax.axis('off')
+    plt.tight_layout()
+    plt.show()
+
+def visualize_closest_pairs(df_distances):
+    """Show top 2 closest pairs (4 images) from different classes."""
+    # Filter for different classes
+    diff_class = df_distances[df_distances['same_class'] == False].head(2)
+    
+    fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+    fig.suptitle('Closest Support Vectors (Different Classes)', fontsize=16)
+    
+    rows = diff_class.to_dict('records')
+    
+    for i, row in enumerate(rows):
+        # Pair 1: Image A
+        ax1 = axes[i, 0]
+        path1 = find_image_path(row['id1'], row['class1'])
+        if path1:
+            img = cv2.imread(path1)
+            ax1.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            ax1.set_title(f"Pair {i+1}-A\n{row['class1']} ({row['id1']})")
+        ax1.axis('off')
+
+        # Pair 1: Image B
+        ax2 = axes[i, 1]
+        path2 = find_image_path(row['id2'], row['class2'])
+        if path2:
+            img = cv2.imread(path2)
+            ax2.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            ax2.set_title(f"Pair {i+1}-B\n{row['class2']} ({row['id2']})\nDist: {row['distance']:.2f}")
+        ax2.axis('off')
+
+    plt.tight_layout()
+    plt.show()
 
 
 # ============================================================================
@@ -256,55 +344,41 @@ class MulticlassSVM:
 # Analysis Functions
 # ============================================================================
 def find_farthest_points(clf: SoftMarginLinearSVM, X: np.ndarray, y: np.ndarray,
-                         y_original: np.ndarray, class_names: np.ndarray) -> Dict:
-    """
-    Find data points farthest from the hyperplane in each category.
-    
-    For a binary classifier (One-vs-Rest), we find:
-    - Farthest point in the positive class (+1 side, this class)
-    - Farthest point in each negative class (-1 side, other classes)
-    """
+                         y_original: np.ndarray, class_names: np.ndarray, 
+                         ids: np.ndarray) -> Dict: # <--- Added ids arg
     distances = clf.get_distances_to_hyperplane(X)
-    
     result = {}
     
-    # Positive class (y == +1): find point with largest positive distance
+    # Helper to package result
+    def make_info(idx):
+        return {
+            "index": idx,
+            "id": ids[idx], # <--- Store the string ID
+            "distance": distances[idx],
+            "original_label": class_names[y_original[idx]],
+        }
+
+    # Positive class
     pos_mask = y == 1
     if np.any(pos_mask):
         pos_indices = np.where(pos_mask)[0]
         pos_distances = distances[pos_mask]
         farthest_pos_idx = pos_indices[np.argmax(pos_distances)]
-        result["positive_class"] = {
-            "index": farthest_pos_idx,
-            "distance": distances[farthest_pos_idx],
-            "original_label": class_names[y_original[farthest_pos_idx]],
-        }
+        result["positive_class"] = make_info(farthest_pos_idx)
     
-    # Negative class (y == -1): find point with most negative distance (farthest on -1 side)
+    # Negative class
     neg_mask = y == -1
     if np.any(neg_mask):
         neg_indices = np.where(neg_mask)[0]
         neg_distances = distances[neg_mask]
-        farthest_neg_idx = neg_indices[np.argmin(neg_distances)]  # most negative
-        result["negative_class"] = {
-            "index": farthest_neg_idx,
-            "distance": distances[farthest_neg_idx],
-            "original_label": class_names[y_original[farthest_neg_idx]],
-        }
+        farthest_neg_idx = neg_indices[np.argmin(neg_distances)]
+        result["negative_class"] = make_info(farthest_neg_idx)
     
     return result
 
-
 def analyze_support_vectors(multiclass_svm: MulticlassSVM, X: np.ndarray, 
-                            y: np.ndarray, class_names: np.ndarray) -> Dict:
-    """
-    Comprehensive analysis of support vectors.
-    
-    Returns dict with:
-    - Support vector info per binary classifier
-    - Farthest points from hyperplane per classifier
-    - Global support vector indices (union across all classifiers)
-    """
+                            y: np.ndarray, class_names: np.ndarray,
+                            ids: np.ndarray) -> Dict: # <--- Added ids arg
     analysis = {
         "per_class": {},
         "global_support_vector_indices": set(),
@@ -314,15 +388,11 @@ def analyze_support_vectors(multiclass_svm: MulticlassSVM, X: np.ndarray,
     for cls in multiclass_svm.classes_:
         class_name = class_names[cls]
         clf = multiclass_svm.classifiers_[cls]
-        
-        # Binary labels for this classifier
         y_binary = np.where(y == cls, 1, -1).astype(np.float64)
         
-        # Support vector info
         sv_indices = clf.support_vector_indices_
         analysis["global_support_vector_indices"].update(sv_indices.tolist())
         
-        # Categorize support vectors by their original class
         sv_original_labels = y[sv_indices]
         sv_by_class = {}
         for orig_cls in multiclass_svm.classes_:
@@ -330,8 +400,8 @@ def analyze_support_vectors(multiclass_svm: MulticlassSVM, X: np.ndarray,
             mask = sv_original_labels == orig_cls
             sv_by_class[orig_name] = sv_indices[mask].tolist()
         
-        # Farthest points
-        farthest = find_farthest_points(clf, X, y_binary, y, class_names)
+        # Pass ids to farthest points finder
+        farthest = find_farthest_points(clf, X, y_binary, y, class_names, ids)
         
         analysis["per_class"][class_name] = {
             "n_support_vectors": len(sv_indices),
@@ -341,40 +411,35 @@ def analyze_support_vectors(multiclass_svm: MulticlassSVM, X: np.ndarray,
             "w_norm": float(np.linalg.norm(clf.w)),
             "b": float(clf.b),
         }
-        
         analysis["farthest_points"][class_name] = farthest
     
-    analysis["global_support_vector_indices"] = sorted(
-        list(analysis["global_support_vector_indices"])
-    )
+    analysis["global_support_vector_indices"] = sorted(list(analysis["global_support_vector_indices"]))
     analysis["n_unique_support_vectors"] = len(analysis["global_support_vector_indices"])
-    
     return analysis
 
-
 def compute_sv_pairwise_distances(X: np.ndarray, sv_indices: List[int], 
-                                   y: np.ndarray, class_names: np.ndarray) -> pd.DataFrame:
-    """
-    Compute pairwise Euclidean distances between support vectors.
-    
-    Returns a DataFrame with columns: idx1, idx2, distance, class1, class2
-    """
+                                   y: np.ndarray, class_names: np.ndarray,
+                                   ids: np.ndarray) -> pd.DataFrame: # <--- Added ids arg
     sv_indices = np.array(sv_indices)
     n_sv = len(sv_indices)
-    
     rows = []
+    
+    # Optimization: To save time, we can just do the top closest in the main loop or
+    # keep this loop but add ID info.
     for i in range(n_sv):
         for j in range(i + 1, n_sv):
             idx1, idx2 = sv_indices[i], sv_indices[j]
             dist = np.linalg.norm(X[idx1] - X[idx2])
             class1 = class_names[y[idx1]]
             class2 = class_names[y[idx2]]
+            
+            # Optimization: Only store if they are different classes (for this specific task)
+            # or keep all. Storing all is safer for general use.
             rows.append({
-                "idx1": idx1,
-                "idx2": idx2,
+                "idx1": idx1, "idx2": idx2,
+                "id1": ids[idx1], "id2": ids[idx2], # <--- Store IDs
                 "distance": dist,
-                "class1": class1,
-                "class2": class2,
+                "class1": class1, "class2": class2,
                 "same_class": class1 == class2,
             })
     
@@ -383,45 +448,47 @@ def compute_sv_pairwise_distances(X: np.ndarray, sv_indices: List[int],
         df = df.sort_values("distance").reset_index(drop=True)
     return df
 
-
 # ============================================================================
 # Main
 # ============================================================================
 def load_data():
-    """Load numpy arrays and encode labels."""
+    """Load numpy arrays, encode labels, and get String IDs."""
     X = np.load(X_PATH)
     y_raw = np.load(Y_PATH, allow_pickle=True)
+    
+    # Load metadata to get IDs (e.g., banana_001)
+    df_meta = pd.read_csv(RAW_DIR / "metadata.csv")
+    # Ensure alignment: We assume X was generated in same order as metadata
+    ids = df_meta['ID'].values
+
     label_encoder = LabelEncoder()
     y = label_encoder.fit_transform(y_raw)
     class_names = label_encoder.classes_
-    print(f"Data: X {X.shape}, y {y.shape}, num classes: {len(class_names)}")
-    print(f"Classes: {list(class_names)}")
-    return X, y, class_names, label_encoder
-
+    
+    print(f"Data: X {X.shape}, y {y.shape}")
+    return X, y, class_names, label_encoder, ids
 
 def main():
     print("=" * 70)
     print("Task 1.2: Soft-Margin Linear SVM from Scratch")
     print("=" * 70)
     
-    # Load data
-    X, y, class_names, label_encoder = load_data()
+    # 1. Load data WITH IDs
+    X, y, class_names, label_encoder, ids = load_data()
     
-    # Train-test split (same as classification.py for consistency)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=TEST_SIZE, stratify=y, random_state=RANDOM_STATE
+    # 2. Split everything (including IDs)
+    X_train, X_test, y_train, y_test, ids_train, ids_test = train_test_split(
+        X, y, ids, test_size=TEST_SIZE, stratify=y, random_state=RANDOM_STATE
     )
     print(f"\nTrain: {X_train.shape[0]}, Test: {X_test.shape[0]}")
     
-    # Standardize features (important for SVM)
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
     
     # Train multiclass SVM
-    C = 1.0  # Regularization parameter
+    C = 1.0 # Regularization parameter
     print(f"\nTraining Soft-Margin SVM with C={C}...")
-    
     svm = MulticlassSVM(C=C, tol=1e-5)
     svm.fit(X_train_scaled, y_train)
     
@@ -431,25 +498,16 @@ def main():
     
     train_acc = accuracy_score(y_train, y_pred_train)
     test_acc = accuracy_score(y_test, y_pred_test)
-    
+
     print(f"\n{'='*70}")
     print("RESULTS")
     print(f"{'='*70}")
     print(f"Training Accuracy: {train_acc:.4f}")
     print(f"Test Accuracy:     {test_acc:.4f}")
-    
-    # Confusion matrix
-    cm = confusion_matrix(y_test, y_pred_test)
-    print(f"\nConfusion Matrix (Test Set):")
-    cm_df = pd.DataFrame(cm, index=class_names, columns=class_names)
-    print(cm_df)
-    
-    # Analyze support vectors
-    print(f"\n{'='*70}")
-    print("SUPPORT VECTOR ANALYSIS")
-    print(f"{'='*70}")
-    
-    analysis = analyze_support_vectors(svm, X_train_scaled, y_train, class_names)
+
+    # 3. Analyze with IDs
+    print(f"\n{'='*70}\nSUPPORT VECTOR ANALYSIS\n{'='*70}")
+    analysis = analyze_support_vectors(svm, X_train_scaled, y_train, class_names, ids_train)
     
     print(f"\nTotal unique support vectors: {analysis['n_unique_support_vectors']} "
           f"(out of {X_train.shape[0]} training samples)")
@@ -464,116 +522,50 @@ def main():
         for orig_class, indices in info["support_vectors_by_original_class"].items():
             if len(indices) > 0:
                 print(f"    {orig_class}: {len(indices)} SVs")
+
+    # 4. Farthest Points Table & VISUALIZATION
+    print(f"\n{'='*70}\nFARTHEST POINTS FROM HYPERPLANE\n{'='*70}")
     
-    print(f"\n{'='*70}")
-    print("FARTHEST POINTS FROM HYPERPLANE")
-    print(f"{'='*70}")
-    
-    for class_name, farthest in analysis["farthest_points"].items():
-        print(f"\n[{class_name} vs Rest classifier]")
-        if "positive_class" in farthest:
-            p = farthest["positive_class"]
-            print(f"  Farthest on +1 side (class={class_name}):")
-            print(f"    Index: {p['index']}, Distance: {p['distance']:.4f}, "
-                  f"True label: {p['original_label']}")
-        if "negative_class" in farthest:
-            n = farthest["negative_class"]
-            print(f"  Farthest on -1 side (other classes):")
-            print(f"    Index: {n['index']}, Distance: {n['distance']:.4f}, "
-                  f"True label: {n['original_label']}")
-    
-    # Compute pairwise distances between support vectors
-    print(f"\n{'='*70}")
-    print("SUPPORT VECTOR PAIRWISE DISTANCES")
-    print(f"{'='*70}")
-    
-    sv_distances = compute_sv_pairwise_distances(
-        X_train_scaled, analysis["global_support_vector_indices"], y_train, class_names
-    )
-    
-    # Show closest pairs (different classes)
-    cross_class = sv_distances[~sv_distances["same_class"]]
-    print(f"\nClosest support vector pairs from DIFFERENT classes (top 20):")
-    print(cross_class.head(20).to_string(index=False))
-    
-    # Save results
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    
-    results = {
-        "svm": svm,
-        "scaler": scaler,
-        "X_train": X_train,
-        "X_test": X_test,
-        "X_train_scaled": X_train_scaled,
-        "X_test_scaled": X_test_scaled,
-        "y_train": y_train,
-        "y_test": y_test,
-        "class_names": class_names,
-        "label_encoder": label_encoder,
-        "analysis": analysis,
-        "sv_pairwise_distances": sv_distances,
-        "confusion_matrix": cm,
-        "train_accuracy": train_acc,
-        "test_accuracy": test_acc,
-    }
-    
-    results_path = RESULTS_DIR / "svm_scratch_results.pkl"
-    with open(results_path, "wb") as f:
-        pickle.dump(results, f)
-    print(f"\nResults saved to: {results_path}")
-    
-    # Save summary CSV
-    summary_rows = []
-    for class_name, info in analysis["per_class"].items():
-        summary_rows.append({
-            "Classifier": f"{class_name} vs Rest",
-            "N_Support_Vectors": info["n_support_vectors"],
-            "W_Norm": info["w_norm"],
-            "Bias": info["b"],
-        })
-    
-    summary_df = pd.DataFrame(summary_rows)
-    summary_path = RESULTS_DIR / "svm_scratch_summary.csv"
-    summary_df.to_csv(summary_path, index=False)
-    print(f"Summary saved to: {summary_path}")
-    
-    # Save farthest points info
     farthest_rows = []
     for class_name, farthest in analysis["farthest_points"].items():
         if "positive_class" in farthest:
             p = farthest["positive_class"]
             farthest_rows.append({
-                "Classifier": f"{class_name} vs Rest",
-                "Side": "Positive (+1)",
-                "Index": p["index"],
-                "Distance": p["distance"],
-                "True_Label": p["original_label"],
+                "Classifier": f"{class_name} vs Rest", "Side": "Positive (+1)",
+                "ID": p["id"], "Distance": p["distance"], "True_Label": p["original_label"]
             })
         if "negative_class" in farthest:
             n = farthest["negative_class"]
             farthest_rows.append({
-                "Classifier": f"{class_name} vs Rest",
-                "Side": "Negative (-1)",
-                "Index": n["index"],
-                "Distance": n["distance"],
-                "True_Label": n["original_label"],
+                "Classifier": f"{class_name} vs Rest", "Side": "Negative (-1)",
+                "ID": n["id"], "Distance": n["distance"], "True_Label": n["original_label"]
             })
     
     farthest_df = pd.DataFrame(farthest_rows)
-    farthest_path = RESULTS_DIR / "svm_farthest_points.csv"
-    farthest_df.to_csv(farthest_path, index=False)
-    print(f"Farthest points saved to: {farthest_path}")
+    print(farthest_df.head(10).to_string(index=False)) # Show table in console
+    farthest_df.to_csv(RESULTS_DIR / "svm_farthest_points.csv", index=False)
     
-    # Save cross-class SV distances
-    sv_dist_path = RESULTS_DIR / "svm_sv_pairwise_distances.csv"
-    sv_distances.to_csv(sv_dist_path, index=False)
-    print(f"SV pairwise distances saved to: {sv_dist_path}")
-    
-    print(f"\n{'='*70}")
-    print("DONE - Ready for visual inspection and distance analysis")
-    print(f"{'='*70}")
+    print("\nVisualizing top 4 farthest points...")
+    visualize_farthest_points(analysis["farthest_points"])
 
+    # 5. Pairwise Distances & VISUALIZATION
+    print(f"\n{'='*70}\nSUPPORT VECTOR PAIRWISE DISTANCES\n{'='*70}")
+    
+    # Pass ids_train here
+    sv_distances = compute_sv_pairwise_distances(
+        X_train_scaled, analysis["global_support_vector_indices"], y_train, class_names, ids_train
+    )
+    
+    cross_class = sv_distances[~sv_distances["same_class"]]
+    print(f"\nClosest support vector pairs from DIFFERENT classes:")
+    print(cross_class[['id1', 'class1', 'id2', 'class2', 'distance']].head(10).to_string(index=False))
+    
+    sv_distances.to_csv(RESULTS_DIR / "svm_sv_pairwise_distances.csv", index=False)
+
+    print("\nVisualizing closest pairs...")
+    visualize_closest_pairs(sv_distances)
+    
+    print("\nDONE.")
 
 if __name__ == "__main__":
     main()
-
