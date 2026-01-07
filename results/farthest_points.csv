@@ -1,0 +1,11 @@
+Classifier,Side,ID,Distance,True_Label
+Banana vs Rest,Positive (+1),banana_072,2.6265567706901973,Banana
+Banana vs Rest,Negative (-1),mandarin_235,-3.4759338560635,Mandarin
+Cucumber vs Rest,Positive (+1),cucumber_383,2.105708574838665,Cucumber
+Cucumber vs Rest,Negative (-1),mandarin_378,-3.577977745634574,Mandarin
+Mandarin vs Rest,Positive (+1),mandarin_211,2.8801677635875294,Mandarin
+Mandarin vs Rest,Negative (-1),potato_042,-3.0261376795634987,Potato
+Potato vs Rest,Positive (+1),potato_307,2.8266998809600317,Potato
+Potato vs Rest,Negative (-1),mandarin_309,-3.2726386719409604,Mandarin
+Tomato vs Rest,Positive (+1),tomato_517,2.3511510716017914,Tomato
+Tomato vs Rest,Negative (-1),mandarin_310,-3.95403581106405,Mandarin
